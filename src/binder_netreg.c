@@ -1117,7 +1117,7 @@ binder_netreg_scan_result_notify(
                 const RadioCellInfo_1_6* cells = result->networkInfos.data.ptr;
 
                 for (i = 0; i < n; i++) {
-                    const RadioCellInfo_165* cell = cells + i;
+                    const RadioCellInfo_1_6* cell = cells + i;
 
                     switch ((RADIO_CELL_INFO_TYPE_1_6)cell->cellInfoType) {
                         case RADIO_CELL_INFO_1_5_GSM:
