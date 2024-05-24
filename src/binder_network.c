@@ -574,18 +574,6 @@ binder_network_poll_voice_state_1_5(
 }
 static
 void
-binder_network_poll_voice_state_1_6(
-        BinderRegistrationState* state,
-        const RadioRegStateResult_1_6* result)
-{
-    BinderNetworkLocation l;
-
-    binder_network_location_1_5(&result->cellIdentity, &l);
-    binder_network_set_registration_state(state, result->regState,
-                                          result->rat, l.lac, l.ci);
-}
-static
-void
 binder_network_poll_voice_state_cb(
     RadioRequest* req,
     RADIO_TX_STATUS status,
@@ -628,23 +616,15 @@ binder_network_poll_voice_state_cb(
                     reason = result->reasonForDenial;
                     binder_network_poll_voice_state_1_2(reg, result);
                 }
-            } else if (resp == RADIO_RESP_GET_VOICE_REGISTRATION_STATE_1_5) {
-                const RadioRegStateResult_1_5* result =
-                    gbinder_reader_read_hidl_struct(&reader,
-                        RadioRegStateResult_1_5);
+            } else if (resp == RADIO_RESP_GET_VOICE_REGISTRATION_STATE_1_5 || resp == RADIO_RESP_GET_VOICE_REGISTRATION_STATE_1_6) {
+                const RadioRegStateResult_1_5 *result =
+                        gbinder_reader_read_hidl_struct(&reader,
+                                                        RadioRegStateResult_1_5);
 
                 if (result) {
                     reg = &state;
                     reason = result->reasonDataDenied;
                     binder_network_poll_voice_state_1_5(reg, result);
-                }
-                else if (resp == RADIO_RESP_GET_VOICE_REGISTRATION_STATE_1_6) {
-                    const RadioRegStateResult_1_6* result = gbinder_reader_read_hidl_struct(&reader,RadioRegStateResult_1_6);
-                    if (result) {
-                        reg = &state;
-                        reason = result->reasonDataDenied;
-                        binder_network_poll_voice_state_1_6(reg,result);
-                    }
                 }
             } else {
                 ofono_error("Unexpected getVoiceRegistrationState response %d",
@@ -752,33 +732,6 @@ binder_network_poll_data_state_1_5(
 }
 static
 void
-binder_network_poll_data_state_1_6(
-        BinderRegistrationState* state,
-        BinderNetworkObject* self,
-        const RadioRegStateResult_1_6* result)
-{
-    BinderNetworkLocation l;
-    RADIO_TECH rat = result->rat;
-
-    binder_network_location_1_5(&result->cellIdentity, &l);
-
-    if (result->accessTechnologySpecificInfoType == RADIO_REG_ACCESS_TECHNOLOGY_SPECIFIC_INFO_EUTRAN) {
-        RadioRegEutranRegistrationInfo *eutranInfo = (RadioRegEutranRegistrationInfo *)&result->accessTechnologySpecificInfo;
-        RadioDataRegNrIndicators *nrIndicators = &eutranInfo->nrIndicators;
-
-        if ((rat == RADIO_TECH_LTE || rat == RADIO_TECH_LTE_CA) &&
-            self->nr_connected && nrIndicators->isEndcAvailable &&
-            !nrIndicators->isDcNrRestricted &&
-            nrIndicators->isNrAvailable) {
-            DBG_(self, "Setting radio technology for NSA 5G");
-            rat = RADIO_TECH_NR;
-        }
-    }
-    binder_network_set_registration_state(state, result->regState,
-                                          rat, l.lac, l.ci);
-}
-static
-void
 binder_network_poll_data_state_cb(
     RadioRequest* req,
     RADIO_TX_STATUS status,
@@ -834,7 +787,7 @@ binder_network_poll_data_state_cb(
                     max_data_calls = result->maxDataCalls;
                     binder_network_poll_data_state_1_4(reg, self, result);
                 }
-            } else if (resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_5) {
+            } else if (resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_5 || resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_6)) {
                 const RadioRegStateResult_1_5* result =
                     gbinder_reader_read_hidl_struct(&reader,
                         RadioRegStateResult_1_5);
@@ -844,17 +797,7 @@ binder_network_poll_data_state_cb(
                     reason = result->reasonDataDenied;
                     max_data_calls = MAX_DATA_CALLS;
                     binder_network_poll_data_state_1_5(reg, self, result);
-                } else if (resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_6) {
-                    const RadioRegStateResult_1_6* result =
-                            gbinder_reader_read_hidl_struct(&reader,
-                                                            RadioRegStateResult_1_6);
-
-                    if (result) {
-                        reg = &state;
-                        reason = result->reasonDataDenied;
-                        max_data_calls = MAX_DATA_CALLS;
-                        binder_network_poll_data_state_1_6(reg, self, result);
-                    }
+                }
             } else {
                 ofono_error("Unexpected getDataRegistrationState response %d",
                     resp);

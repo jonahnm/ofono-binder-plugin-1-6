@@ -1113,6 +1113,38 @@ binder_netreg_scan_result_notify(
                         break;
                     }
                 }
+            } else if (code == RADIO_IND_NETWORK_SCAN_RESULT_1_6) {
+                const RadioCellInfo_1_6* cells = result->networkInfos.data.ptr;
+
+                for (i = 0; i < n; i++) {
+                    const RadioCellInfo_165* cell = cells + i;
+
+                    switch ((RADIO_CELL_INFO_TYPE_1_6)cell->cellInfoType) {
+                        case RADIO_CELL_INFO_1_5_GSM:
+                            binder_netreg_scan_op_convert_gsm(cell->registered,
+                                                              &cell->info.gsm.cellIdentityGsm.base,
+                                                              binder_netreg_scan_op_append(scan));
+                            break;
+                        case RADIO_CELL_INFO_1_5_WCDMA:
+                            binder_netreg_scan_op_convert_wcdma(cell->registered,
+                                                                &cell->info.wcdma.cellIdentityWcdma.base,
+                                                                binder_netreg_scan_op_append(scan));
+                            break;
+                        case RADIO_CELL_INFO_1_6_LTE:
+                            binder_netreg_scan_op_convert_lte(cell->registered,
+                                                              &cell->info.lte.cellIdentityLte.base,
+                                                              binder_netreg_scan_op_append(scan));
+                            break;
+                        case RADIO_CELL_INFO_1_6_NR:
+                            binder_netreg_scan_op_convert_nr(cell->registered,
+                                                             &cell->info.nr.cellIdentityNr.base,
+                                                             binder_netreg_scan_op_append(scan));
+                            break;
+                        case RADIO_CELL_INFO_1_5_CDMA:
+                        case RADIO_CELL_INFO_1_5_TD_SCDMA:
+                            break;
+                    }
+                }
             }
             if (result->status == RADIO_SCAN_COMPLETE) {
                 DBG_(self, "scan completed");
@@ -1745,7 +1777,10 @@ binder_netreg_register(
         radio_client_add_indication_handler(self->client,
             RADIO_IND_NETWORK_SCAN_RESULT_1_5,
             binder_netreg_scan_result_notify, self);
-
+    self->ind_id[IND_NETWORK_SCAN_RESULT_1_6] =
+            radio_client_add_indication_handler(self->client,
+                                                RADIO_IND_NETWORK_SCAN_RESULT_1_6,
+                                                binder_netreg_scan_result_notify,self);
     /* Miscellaneous */
     self->ind_id[IND_MODEM_RESET] =
         radio_client_add_indication_handler(self->client,

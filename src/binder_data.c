@@ -284,16 +284,9 @@ const GBinderWriterType binder_data_profile_1_5_type = {
     binder_data_profile_1_5_f
 };
 
-
-static const GBinderWriterField binder_data_profile_1_6_f[] = {
-        GBINDER_WRITER_FIELD_HIDL_STRING(RadioDataProfile_1_6,apn),
-        GBINDER_WRITER_FIELD_HIDL_STRING(RadioDataProfile_1_6,user),
-        GBINDER_WRITER_FIELD_HIDL_STRING(RadioDataProfile_1_6,password),
-        GBINDER_WRITER_FIELD_END()
-};
 const GBinderWriterType binder_data_profile_1_6_type = {
-        GBINDER_WRITER_STRUCT_NAME_AND_SIZE(RadioDataProfile_1_6),
-        binder_data_profile_1_6_f
+        GBINDER_WRITER_STRUCT_NAME_AND_SIZE(RadioDataProfile_1_5),
+        binder_data_profile_1_5_f
 };
 static struct ofono_debug_desc binder_data_debug_desc OFONO_DEBUG_ATTR = {
     .file = __FILE__,
@@ -929,16 +922,6 @@ void binder_data_query_data_calls_cb(
                         RadioDataCall_1_5, &count);
 
                 list = binder_data_call_list_1_5(calls, count);
-            }else if (resp == RADIO_RESP_GET_DATA_CALL_LIST_1_5 || resp == RADIO_RESP_GET_DATA_CALL_LIST_1_6) {
-                /*
-                 * getDataCallListResponse_1_5(RadioResponseInfo,
-                 *     vec<SetupDataCallResult> dcResponse);
-                 */
-                const RadioDataCall_1_6 *calls =
-                        gbinder_reader_read_hidl_type_vec(&reader,
-                                                          RadioDataCall_1_6, &count);
-
-                list = binder_data_call_list_1_5(calls, count);
             }
             else {
                 ofono_error("Unexpected getDataCallList response %d", resp);
@@ -1267,7 +1250,7 @@ binder_data_call_setup_cb(
                 if (dc) {
                     call = binder_data_call_new_1_4(dc);
                 }
-            } else if (resp == RADIO_RESP_SETUP_DATA_CALL_1_5) {
+            } else if (resp == RADIO_RESP_SETUP_DATA_CALL_1_5 || resp == RADIO_RESP_SETUP_DATA_CALL_1_6) {
                 /*
                  * setupDataCallResponse_1_5(RadioResponseInfo,
                  *     SetupDataCallResult dcResponse);
@@ -1277,17 +1260,7 @@ binder_data_call_setup_cb(
 
                 if (dc) {
                     call = binder_data_call_new_1_5(dc);
-                } else if (resp == RADIO_RESP_SETUP_DATA_CALL_1_5) {
-                    /*
-                     * setupDataCallResponse_1_5(RadioResponseInfo,
-                     *     SetupDataCallResult dcResponse);
-                     */
-                    const RadioDataCall_1_6* dc =
-                            gbinder_reader_read_hidl_struct(&reader, RadioDataCall_1_6);
-
-                    if (dc) {
-                        call = binder_data_call_new_1_5(dc);
-                    }
+                }
             } else {
                 ofono_error("Unexpected setupDataCall response %d", resp);
             }

@@ -574,7 +574,7 @@ binder_cell_info_array_new_1_6(
         const gboolean registered = cell->registered;
 
         switch ((RADIO_CELL_INFO_TYPE_1_6)cell->cellInfoType) {
-            case RADIO_CELL_INFO_1_6_GSM:
+            case RADIO_CELL_INFO_1_5_GSM:
                 g_ptr_array_add(l, binder_cell_info_new_cell_gsm(registered,
                                                                  &cell->info.gsm.cellIdentityGsm.base.base,
                                                                  &cell->info.gsm.signalStrengthGsm));
@@ -584,7 +584,7 @@ binder_cell_info_array_new_1_6(
                                                                  &cell->info.lte.cellIdentityLte.base.base,
                                                                  &cell->info.lte.signalStrengthLte));
                 continue;
-            case RADIO_CELL_INFO_1_6_WCDMA:
+            case RADIO_CELL_INFO_1_5_WCDMA:
                 g_ptr_array_add(l, binder_cell_info_new_cell_wcdma(registered,
                                                                    &cell->info.wcdma.cellIdentityWcdma.base.base,
                                                                    &cell->info.wcdma.signalStrengthWcdma.base));
@@ -594,8 +594,8 @@ binder_cell_info_array_new_1_6(
                                                                 &cell->info.nr.cellIdentityNr.base,
                                                                 &cell->info.nr.signalStrengthNr));
                 continue;
-            case RADIO_CELL_INFO_1_6_TD_SCDMA:
-            case RADIO_CELL_INFO_1_6_CDMA:
+            case RADIO_CELL_INFO_1_5_TD_SCDMA:
+            case RADIO_CELL_INFO_1_5_CDMA:
                 break;
         }
         DBG("unsupported cell type %d", cell->cellInfoType);
