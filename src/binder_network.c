@@ -787,7 +787,7 @@ binder_network_poll_data_state_cb(
                     max_data_calls = result->maxDataCalls;
                     binder_network_poll_data_state_1_4(reg, self, result);
                 }
-            } else if (resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_5 || resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_6)) {
+            } else if (resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_5 || resp == RADIO_RESP_GET_DATA_REGISTRATION_STATE_1_6) {
                 const RadioRegStateResult_1_5* result =
                     gbinder_reader_read_hidl_struct(&reader,
                         RadioRegStateResult_1_5);
