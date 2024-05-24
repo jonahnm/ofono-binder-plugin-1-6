@@ -38,6 +38,7 @@ enum binder_cell_info_event {
     CELL_INFO_EVENT_1_2,
     CELL_INFO_EVENT_1_4,
     CELL_INFO_EVENT_1_5,
+    CELL_INFO_EVENT_1_6,
     CELL_INFO_EVENT_COUNT
 };
 
@@ -559,7 +560,48 @@ binder_cell_info_array_new_1_5(
     }
     return l;
 }
+static
+GPtrArray*
+binder_cell_info_array_new_1_6(
+        const RadioCellInfo_1_6* cells,
+        gsize count)
+{
+    gsize i;
+    GPtrArray* l = g_ptr_array_sized_new(count + 1);
 
+    for (i = 0; i < count; i++) {
+        const RadioCellInfo_1_6* cell = cells + i;
+        const gboolean registered = cell->registered;
+
+        switch ((RADIO_CELL_INFO_TYPE_1_6)cell->cellInfoType) {
+            case RADIO_CELL_INFO_1_6_GSM:
+                g_ptr_array_add(l, binder_cell_info_new_cell_gsm(registered,
+                                                                 &cell->info.gsm.cellIdentityGsm.base.base,
+                                                                 &cell->info.gsm.signalStrengthGsm));
+                continue;
+            case RADIO_CELL_INFO_1_6_LTE:
+                g_ptr_array_add(l, binder_cell_info_new_cell_lte(registered,
+                                                                 &cell->info.lte.cellIdentityLte.base.base,
+                                                                 &cell->info.lte.signalStrengthLte));
+                continue;
+            case RADIO_CELL_INFO_1_6_WCDMA:
+                g_ptr_array_add(l, binder_cell_info_new_cell_wcdma(registered,
+                                                                   &cell->info.wcdma.cellIdentityWcdma.base.base,
+                                                                   &cell->info.wcdma.signalStrengthWcdma.base));
+                continue;
+            case RADIO_CELL_INFO_1_6_NR:
+                g_ptr_array_add(l, binder_cell_info_new_cell_nr(registered,
+                                                                &cell->info.nr.cellIdentityNr.base,
+                                                                &cell->info.nr.signalStrengthNr));
+                continue;
+            case RADIO_CELL_INFO_1_6_TD_SCDMA:
+            case RADIO_CELL_INFO_1_6_CDMA:
+                break;
+        }
+        DBG("unsupported cell type %d", cell->cellInfoType);
+    }
+    return l;
+}
 static
 void
 binder_cell_info_list_1_0(
@@ -631,7 +673,23 @@ binder_cell_info_list_1_5(
         ofono_warn("Failed to parse cellInfoList_1_5 payload");
     }
 }
+static
+void
+binder_cell_info_list_1_6(
+        BinderCellInfo* self,
+        GBinderReader* reader)
+{
+    gsize count;
+    const RadioCellInfo_1_6* cells = gbinder_reader_read_hidl_type_vec(reader,
+                                                                       RadioCellInfo_1_6, &count);
 
+    if (cells) {
+        binder_cell_info_update_cells(self,
+                                      binder_cell_info_array_new_1_6(cells, count));
+    } else {
+        ofono_warn("Failed to parse cellInfoList_1_6 payload");
+    }
+}
 static
 void
 binder_cell_info_list_changed_1_0(
@@ -707,7 +765,24 @@ binder_cell_info_list_changed_1_5(
         binder_cell_info_list_1_5(self, &reader);
     }
 }
+static
+void
+binder_cell_info_list_changed_1_6(
+        RadioClient* client,
+        RADIO_IND code,
+        const GBinderReader* args,
+        gpointer user_data)
+{
+    BinderCellInfo* self = THIS(user_data);
 
+    GASSERT(code == RADIO_IND_CELL_INFO_LIST_1_6);
+    if (self->enabled) {
+        GBinderReader reader;
+
+        gbinder_reader_copy(&reader, args);
+        binder_cell_info_list_1_6(self, &reader);
+    }
+}
 static
 void
 binder_cell_info_list_cb(
@@ -743,6 +818,9 @@ binder_cell_info_list_cb(
                 case RADIO_RESP_GET_CELL_INFO_LIST_1_5:
                     binder_cell_info_list_1_5(self, &reader);
                     break;
+                    case RADIO_RESP_GET_CELL_INFO_LIST_1_6:
+                        binder_cell_info_array_new_1_6(self,&reader);
+                        break;
                 default:
                     ofono_warn("Unexpected getCellInfoList response %d", resp);
                     break;
@@ -1025,6 +1103,9 @@ binder_cell_info_new(
         radio_client_add_indication_handler(client,
             RADIO_IND_CELL_INFO_LIST_1_5,
             binder_cell_info_list_changed_1_5, self);
+    self->event_id[CELL_INFO_EVENT_1_6] = radio_client_add_indication_handler(client,
+                                                                              RADIO_IND_CELL_INFO_LIST_1_6,
+                                                                              binder_cell_info_list_changed_1_6,self);
     self->radio_state_event_id =
         binder_radio_add_property_handler(radio,
             BINDER_RADIO_PROPERTY_STATE,
