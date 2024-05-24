@@ -109,7 +109,7 @@ binder_cell_info_int64_format(
     guint64 value,
     const char* format)
 {
-    if (value == OFONO_CELL_INVALID_VALUE_INT64) {
+    if (value == OFONO_CELL_INVALID_VALUE) {
         return "";
     } else {
         GUtilIdlePool* pool = gutil_idle_pool_get(&binder_cell_info_pool);
@@ -210,7 +210,7 @@ binder_cell_info_invalidate_nr(
 {
     nr->mcc = OFONO_CELL_INVALID_VALUE;
     nr->mnc = OFONO_CELL_INVALID_VALUE;
-    nr->nci = OFONO_CELL_INVALID_VALUE_INT64;
+    nr->nci = OFONO_CELL_INVALID_VALUE;
     nr->pci = OFONO_CELL_INVALID_VALUE;
     nr->tac = OFONO_CELL_INVALID_VALUE;
     nr->nrarfcn = OFONO_CELL_INVALID_VALUE;
