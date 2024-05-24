@@ -417,7 +417,6 @@ binder_voicecall_map_cause(
         return OFONO_DISCONNECT_REASON_LOCAL_HANGUP;
     } else {
         enum ofono_call_status call_status;
-card
         switch (last_cause) {
         case RADIO_LAST_CALL_FAIL_UNOBTAINABLE_NUMBER:
         case RADIO_LAST_CALL_FAIL_NORMAL:
