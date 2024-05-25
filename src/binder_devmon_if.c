@@ -106,9 +106,15 @@ binder_devmon_if_io_indication_filter_sent(
     GASSERT(self->req == req);
     radio_request_unref(self->req);
     self->req = NULL;
-
+    RADIO_RESP expectedresp;
+    RADIO_INTERFACE iface = radio_client_interface(self->client);
+    if(iface >= RADIO_INTERFACE_1_5) {
+        expectedresp = RADIO_RESP_SET_INDICATION_FILTER_1_5;
+    } else {
+        expectedresp = RADIO_RESP_SET_INDICATION_FILTER;
+    }
     if (status == RADIO_TX_STATUS_OK) {
-        if (resp == RADIO_RESP_SET_INDICATION_FILTER) {
+        if (resp == expectedresp) {
             if (error == RADIO_ERROR_REQUEST_NOT_SUPPORTED) {
                 /* This is a permanent failure */
                 DBG_(self, "Indication response filter is not supported");
