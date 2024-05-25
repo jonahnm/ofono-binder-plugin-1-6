@@ -805,20 +805,20 @@ binder_cell_info_list_cb(
 
                 gbinder_reader_copy(&reader, args);
                 switch (resp) {
-                case RADIO_RESP_GET_CELL_INFO_LIST:
-                    binder_cell_info_list_1_0(self, &reader);
-                    break;
-                case RADIO_RESP_GET_CELL_INFO_LIST_1_2:
-                    binder_cell_info_list_1_2(self, &reader);
-                    break;
-                case RADIO_RESP_GET_CELL_INFO_LIST_1_4:
-                    binder_cell_info_list_1_4(self, &reader);
-                    break;
-                case RADIO_RESP_GET_CELL_INFO_LIST_1_5:
-                    binder_cell_info_list_1_5(self, &reader);
-                    break;
+                    case RADIO_RESP_GET_CELL_INFO_LIST:
+                        binder_cell_info_list_1_0(self, &reader);
+                        break;
+                    case RADIO_RESP_GET_CELL_INFO_LIST_1_2:
+                        binder_cell_info_list_1_2(self, &reader);
+                        break;
+                    case RADIO_RESP_GET_CELL_INFO_LIST_1_4:
+                        binder_cell_info_list_1_4(self, &reader);
+                        break;
+                    case RADIO_RESP_GET_CELL_INFO_LIST_1_5:
+                        binder_cell_info_list_1_5(self, &reader);
+                        break;
                     case RADIO_RESP_GET_CELL_INFO_LIST_1_6:
-                        binder_cell_info_array_new_1_6(self,&reader);
+                        binder_cell_info_list_1_6(self,&reader);
                         break;
                 default:
                     ofono_warn("Unexpected getCellInfoList response %d", resp);

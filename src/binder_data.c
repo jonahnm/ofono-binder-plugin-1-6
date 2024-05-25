@@ -1342,7 +1342,7 @@ binder_data_call_setup_submit(
     BinderDataObject* data = dr->data;
     BinderNetwork* network = data->network;
     RadioRequestGroup* g = data->g;
-    const RADIO_INTERFACE iface = radio_client_interface(g->client);
+    const RADIO_INTERFACE iface = 6;//radio_client_interface(g->client);
     RadioRequest* req;
     GBinderWriter writer;
     const char* nothing = NULL;
@@ -1351,8 +1351,49 @@ binder_data_call_setup_submit(
     const RADIO_APN_AUTH_TYPE auth =(setup->username && setup->username[0]) ?
         binder_radio_auth_from_ofono_method(setup->auth_method) :
         RADIO_APN_AUTH_NONE;
+    if (iface == RADIO_INTERFACE_1_6) {
+        RadioDataProfile_1_5* dp;
 
-    if (iface >= RADIO_INTERFACE_1_5) {
+        req = radio_request_new2(g, RADIO_REQ_SETUP_DATA_CALL_1_6,
+                                 &writer, binder_data_call_setup_cb, NULL, setup);
+
+        /*
+         *  oneway setupDataCall_1_6(int32_t serial, AccessNetwork accessNetwork,
+         *  DataProfileInfo dataProfileInfo, bool roamingAllowed,
+         *  DataRequestReason reason, vec<LinkAddress> addresses, vec<string> dnses,
+         *  int32_t pduSessionId, OptionalSliceInfo sliceInfo,
+         *  OptionalTrafficDescriptor trafficDescriptor, bool matchAllRuleAllowed);
+         */
+        dp = gbinder_writer_new0(&writer, RadioDataProfile_1_5);
+        // profile id is only meaningful when it's persistent on the modem.
+        // dp->profileId = setup->profile_id;
+        dp->profileId = RADIO_DATA_PROFILE_INVALID;
+        binder_copy_hidl_string(&writer, &dp->apn, setup->apn);
+        dp->protocol = dp->roamingProtocol =
+                binder_proto_from_ofono_proto(setup->proto);
+        dp->authType = auth;
+        binder_copy_hidl_string(&writer, &dp->user, setup->username);
+        binder_copy_hidl_string(&writer, &dp->password, setup->password);
+        dp->enabled = TRUE;
+        dp->supportedApnTypesBitmap =
+                binder_radio_apn_types_for_profile(setup->profile_id,
+                                                   &data->profile_config);
+
+        gbinder_writer_append_int32(&writer,
+                                    binder_radio_access_network_for_tech(tech)); /* accessNetwork */
+        gbinder_writer_append_struct(&writer, dp,
+                                     &binder_data_profile_1_5_type, NULL);   /* dataProfileInfo */
+        gbinder_writer_append_bool(&writer, TRUE);  /* roamingAllowed */
+        gbinder_writer_append_int32(&writer,
+                                    RADIO_DATA_REQUEST_REASON_NORMAL);      /* reason */
+        gbinder_writer_append_hidl_string_vec(&writer, &nothing, -1);
+        gbinder_writer_append_hidl_string_vec(&writer, &nothing, -1);
+        gbinder_writer_append_int32(&writer,0); /* pduSessionId */
+        gbinder_writer_append_int32(&writer,0); /* sliceInfo */
+        gbinder_writer_append_int32(&writer,0); /* trafficDescriptor */
+        gbinder_writer_append_bool(&writer,TRUE); /* matchAllRuleAllowed */
+    }
+    else if (iface == RADIO_INTERFACE_1_5) {
         RadioDataProfile_1_5* dp;
 
         req = radio_request_new2(g, RADIO_REQ_SETUP_DATA_CALL_1_5,

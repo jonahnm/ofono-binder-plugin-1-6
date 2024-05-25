@@ -181,7 +181,7 @@ binder_radio_power_request_cb(
     void* user_data)
 {
     BinderRadioObject* self = THIS(user_data);
-    const RADIO_INTERFACE iface = radio_client_interface(self->client);
+    const RADIO_INTERFACE iface = 6;//radio_client_interface(self->client);
     RADIO_RESP code = (iface >= RADIO_INTERFACE_1_5) ?
                             RADIO_RESP_SET_RADIO_POWER_1_5 :
                             RADIO_RESP_SET_RADIO_POWER;
@@ -215,7 +215,7 @@ binder_radio_submit_power_request(
      *     bool preferredForEmergencyCall)
      */
     GBinderWriter writer;
-    const RADIO_INTERFACE iface = radio_client_interface(self->client);
+    const RADIO_INTERFACE iface = 6;//radio_client_interface(self->client);
     RADIO_REQ code = (iface == RADIO_INTERFACE_1_5) ?
                            RADIO_REQ_SET_RADIO_POWER_1_5 :
                            RADIO_REQ_SET_RADIO_POWER;
