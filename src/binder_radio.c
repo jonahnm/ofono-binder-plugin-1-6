@@ -182,10 +182,10 @@ binder_radio_power_request_cb(
 {
     BinderRadioObject* self = THIS(user_data);
     const RADIO_INTERFACE iface = 6;//radio_client_interface(self->client);
-    RADIO_RESP code = (iface >= RADIO_INTERFACE_1_5) ?
+    RADIO_RESP code = (iface == RADIO_INTERFACE_1_5) ?
                             RADIO_RESP_SET_RADIO_POWER_1_5 :
                             RADIO_RESP_SET_RADIO_POWER;
-  //  if (iface == RADIO_INTERFACE_1_6) code = RADIO_RESP_SET_RADIO_POWER_1_6;
+    if (iface == RADIO_INTERFACE_1_6)  {code = RADIO_RESP_SET_RADIO_POWER_1_6};
     GASSERT(self->pending_req == req);
     radio_request_unref(self->pending_req);
     self->pending_req = NULL;
@@ -219,6 +219,9 @@ binder_radio_submit_power_request(
     RADIO_REQ code = (iface >= RADIO_INTERFACE_1_5) ?
                            RADIO_REQ_SET_RADIO_POWER_1_5 :
                            RADIO_REQ_SET_RADIO_POWER;
+    if(iface == RADIO_INTERFACE_1_6) {
+        code = RADIO_REQ_SET_RADIO_POWER_1_6;
+    }
     RadioRequest* req = radio_request_new(self->client,
         code, &writer,
         binder_radio_power_request_cb, NULL, self);
