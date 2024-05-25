@@ -1547,7 +1547,7 @@ binder_network_set_pref(
         if(iface == RADIO_INTERFACE_1_6) {
             BinderRadioCaps *caps = self->caps;
             RADIO_ACCESS_FAMILY raf = binder_raf_from_pref(rat);
-            self->set_rat_req = radiO_request_new(client,RADIO_REQ_SET_ALLOWED_NETWORK_TYPES_BITMAP,&writer, binder_network_set_pref_cb,NULL,self);
+            self->set_rat_req = radio_request_new(client,RADIO_REQ_SET_ALLOWED_NETWORK_TYPES_BITMAP,&writer, binder_network_set_pref_cb,NULL,self);
             if(caps) raf &= caps->raf;
             gbinder_writer_append_int32(&writer,raf);
         }
