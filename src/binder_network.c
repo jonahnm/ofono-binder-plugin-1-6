@@ -922,7 +922,7 @@ binder_network_poll_registration_state(
         self->data_poll_req = binder_network_poll_and_retry(self,self->data_poll_req,RADIO_REQ_GET_DATA_REGISTRATION_STATE_1_6,
                                                             binder_network_poll_data_state_cb);
     }
-    if (iface >= RADIO_INTERFACE_1_5) {
+    else if (iface == RADIO_INTERFACE_1_5) {
         self->data_poll_req = binder_network_poll_and_retry(self,
             self->data_poll_req, RADIO_REQ_GET_DATA_REGISTRATION_STATE_1_5,
             binder_network_poll_data_state_cb);
