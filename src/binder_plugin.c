@@ -1340,9 +1340,10 @@ binder_plugin_parse_radio_interface(
 {
     if (name) {
         RADIO_INTERFACE i;
-
+        ofono_warn("Radio Interface Count: %i",RADIO_INTERFACE_COUNT);
         for (i = RADIO_INTERFACE_1_0; i < RADIO_INTERFACE_COUNT; i++ ) {
             if (!g_strcmp0(name, binder_plugin_radio_interface_name(i))) {
+                ofono_warn("Chosen: %i",i);
                 return i;
             }
         }
