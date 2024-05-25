@@ -1550,7 +1550,7 @@ binder_plugin_create_slot(
     } else {
         slot->version = binder_plugin_detect_radio_interface(slot->svcmgr, slot->name);
     }
-
+    ofono_warn("Final: %i",slot->version);
     /* startTimeout */
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_START_TIMEOUT_MS, &ival) && ival >= 0) {
