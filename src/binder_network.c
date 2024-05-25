@@ -1822,7 +1822,8 @@ binder_network_initial_rat_query(
     BinderNetworkObject* self)
 {
     RadioClient* client = self->g->client;
-    const RADIO_INTERFACE iface = radio_client_interface(client);
+    const RADIO_INTERFACE iface = RADIO_INTERFACE_1_6;//radio_client_interface(client);
+
     RadioRequest* req;
     ofono_warn("Interface 1.6: %i",RADIO_INTERFACE_1_6);
     ofono_warn("%i",iface);

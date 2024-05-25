@@ -1016,6 +1016,7 @@ binder_plugin_slot_connected(
     GASSERT(!slot->received_sim_status);
 
     GASSERT(!slot->network);
+
     slot->network = binder_network_new(slot->path, slot->client,
         slot->name, slot->radio, slot->sim_card, slot->sim_settings,
         &slot->config);
