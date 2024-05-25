@@ -184,8 +184,8 @@ binder_radio_power_request_cb(
     const RADIO_INTERFACE iface = 6;//radio_client_interface(self->client);
     RADIO_RESP code = (iface >= RADIO_INTERFACE_1_5) ?
                             RADIO_RESP_SET_RADIO_POWER_1_5 :
-                            RASET_RADIO_POWERDIO_RESP_SET_RADIO_POWER;
-    if (iface == RADIO_INTERFACE_1_6) code = RADIO_RESP_SET_RADIO_POWER_1_6;
+                            RADIO_RESP_SET_RADIO_POWER;
+  //  if (iface == RADIO_INTERFACE_1_6) code = RADIO_RESP_SET_RADIO_POWER_1_6;
     GASSERT(self->pending_req == req);
     radio_request_unref(self->pending_req);
     self->pending_req = NULL;
