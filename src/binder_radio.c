@@ -185,7 +185,7 @@ binder_radio_power_request_cb(
     RADIO_RESP code = (iface >= RADIO_INTERFACE_1_5) ?
                             RADIO_RESP_SET_RADIO_POWER_1_5 :
                             RADIO_RESP_SET_RADIO_POWER;
-    if (iface == RADIO_INTERFACE_1_6) code = RADIO_REQ_SET_RADIO_POWER_1_6;
+    if (iface == RADIO_INTERFACE_1_6) code = RADIO_RESP_SET_RADIO_POWER_1_6;
     GASSERT(self->pending_req == req);
     radio_request_unref(self->pending_req);
     self->pending_req = NULL;
