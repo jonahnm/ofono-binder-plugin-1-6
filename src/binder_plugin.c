@@ -1542,6 +1542,7 @@ binder_plugin_create_slot(
     /* radioInterface */
     sval = ofono_conf_get_string(file, group,
         BINDER_CONF_SLOT_RADIO_INTERFACE);
+    ofono_warn("RadioInterfact: %s",sval);
     if (sval) {
         DBG("%s: " BINDER_CONF_SLOT_RADIO_INTERFACE " %s", group, sval);
         slot->version = binder_plugin_parse_radio_interface(sval);
