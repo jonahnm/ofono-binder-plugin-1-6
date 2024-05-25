@@ -1825,7 +1825,9 @@ binder_network_initial_rat_query(
     const RADIO_INTERFACE iface = radio_client_interface(client);
     RadioRequest* req;
     if (iface == RADIO_INTERFACE_1_6) {
+        ofono_warn("1.6");
         req = radio_request_new2(self->g,
+
                                  RADIO_REQ_GET_ALLOWED_NETWORK_TYPES_BITMAP, NULL,
                                  binder_network_initial_raf_query_cb, NULL, self);
     }
@@ -1909,6 +1911,7 @@ binder_network_query_pref_mode(
     const RADIO_INTERFACE iface = radio_client_interface(client);
     RadioRequest* req;
     if(iface == RADIO_INTERFACE_1_6) {
+        ofono_warn("1.6");
         req = radio_request_new(client,
                                 RADIO_REQ_GET_ALLOWED_NETWORK_TYPES_BITMAP, NULL,
                                 binder_network_raf_query_cb, NULL, self);
