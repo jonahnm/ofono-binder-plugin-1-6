@@ -116,6 +116,7 @@ binder_devmon_if_io_indication_filter_sent(
             }
         } else {
             ofono_error("Unexpected setIndicationFilter response %d", resp);
+            ofono_warn("Expected setIndicationFilter response: %d",RADIO_RESP_SET_INDICATION_FILTER);
         }
     }
 }
