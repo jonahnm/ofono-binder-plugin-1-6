@@ -372,7 +372,6 @@ binder_cell_info_new_cell_nr(
         binder_cell_info_int_format(nr->csiSinr, ",csiSinr=%d"));
     return cell;
 }
-
 static
 GPtrArray*
 binder_cell_info_array_new_1_0(

@@ -1544,8 +1544,14 @@ binder_network_set_pref(
         RadioClient* client = self->g->client;
         const RADIO_INTERFACE iface = radio_client_interface(client);
         GBinderWriter writer;
-
-        if (iface >= RADIO_INTERFACE_1_4) {
+        if(iface == RADIO_INTERFACE_1_6) {
+            BinderRadioCaps *caps = self->caps;
+            RADIO_ACCESS_FAMILY raf = binder_raf_from_pref(rat);
+            self->set_rat_req = radiO_request_new(client,RADIO_REQ_SET_ALLOWED_NETWORK_TYPES_BITMAP,&writer, binder_network_set_pref_cb,NULL,self);
+            if(caps) raf &= caps->raf;
+            gbinder_writer_append_int32(&writer,raf);
+        }
+        else if (iface >= RADIO_INTERFACE_1_4) {
             BinderRadioCaps* caps = self->caps;
             RADIO_ACCESS_FAMILY raf = binder_raf_from_pref(rat);
 
@@ -1700,7 +1706,8 @@ binder_network_query_rat_done(
             } else {
                 ofono_warn("getPreferredNetworkType error %d", error);
             }
-        } else {
+        }
+        else {
             ofono_error("Unexpected getPreferredNetworkType response %d", resp);
         }
     }
@@ -1717,7 +1724,7 @@ binder_network_query_raf_done(
     const GBinderReader* args)
 {
     if (status == RADIO_TX_STATUS_OK) {
-        if (resp == RADIO_RESP_GET_PREFERRED_NETWORK_TYPE_BITMAP) {
+        if (resp == RADIO_RESP_GET_PREFERRED_NETWORK_TYPE_BITMAP || resp == RADIO_RESP_GET_ALLOWED_NETWORK_TYPES_BITMAP) {
             /*
              * getPreferredNetworkTypeBitmapResponse(RadioResponseInfo,
              *     bitfield<RadioAccessFamily> networkTypeBitmap);
@@ -1817,8 +1824,12 @@ binder_network_initial_rat_query(
     RadioClient* client = self->g->client;
     const RADIO_INTERFACE iface = radio_client_interface(client);
     RadioRequest* req;
-
-    if (iface >= RADIO_INTERFACE_1_4) {
+    if (iface == RADIO_INTERFACE_1_6) {
+        req = radio_request_new2(self->g,
+                                 RADIO_REQ_GET_ALLOWED_NETWORK_TYPES_BITMAP, NULL,
+                                 binder_network_initial_raf_query_cb, NULL, self);
+    }
+    else if (iface >= RADIO_INTERFACE_1_4) {
         /* getPreferredNetworkTypeBitmap(int32 serial) */
         req = radio_request_new2(self->g,
             RADIO_REQ_GET_PREFERRED_NETWORK_TYPE_BITMAP, NULL,
@@ -1897,8 +1908,12 @@ binder_network_query_pref_mode(
     RadioClient* client = self->g->client;
     const RADIO_INTERFACE iface = radio_client_interface(client);
     RadioRequest* req;
-
-    if (iface >= RADIO_INTERFACE_1_4) {
+    if(iface == RADIO_INTERFACE_1_6) {
+        req = radio_request_new(client,
+                                RADIO_REQ_GET_ALLOWED_NETWORK_TYPES_BITMAP, NULL,
+                                binder_network_raf_query_cb, NULL, self);
+    }
+    else if (iface >= RADIO_INTERFACE_1_4) {
         /* getPreferredNetworkTypeBitmap(int32 serial); */
         req = radio_request_new(client,
             RADIO_REQ_GET_PREFERRED_NETWORK_TYPE_BITMAP, NULL,
