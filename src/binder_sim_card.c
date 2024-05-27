@@ -729,10 +729,16 @@ gboolean
 binder_sim_card_ready(
     BinderSimCard* card)
 {
-    return card && card->app &&
+    gboolean toret = card && card->app &&
         ((card->app->app_state == RADIO_APP_STATE_READY) ||
          (card->app->app_state == RADIO_APP_STATE_SUBSCRIPTION_PERSO &&
           card->app->perso_substate == RADIO_PERSO_SUBSTATE_READY));
+    if(toret) {
+        ofono_warn("Sim card ready.");
+    } else {
+        ofono_warn("sim card not ready.");
+    }
+    return toret;
 }
 
 gulong
