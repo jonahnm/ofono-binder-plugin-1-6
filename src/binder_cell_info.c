@@ -965,9 +965,11 @@ void
 binder_cell_info_query(
     BinderCellInfo* self)
 {
+    ofono_warn("binder_cell_info_query");
     radio_request_drop(self->query_req);
+    RADIO_INTERFACE iface = /*radio_client_interface(self->client)*/6;
     self->query_req = radio_request_new(self->client,
-        RADIO_REQ_GET_CELL_INFO_LIST, NULL,
+                                        (iface == RADIO_INTERFACE_1_6) ? RADIO_REQ_GET_CELL_INFO_LIST_1_6 : RADIO_REQ_GET_CELL_INFO_LIST, NULL,
         binder_cell_info_list_cb, NULL, self);
     radio_request_set_retry(self->query_req, BINDER_RETRY_MS, MAX_RETRIES);
     radio_request_set_retry_func(self->query_req, binder_cell_info_retry);
