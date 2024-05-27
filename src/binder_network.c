@@ -944,6 +944,8 @@ binder_network_poll_registration_state(
     if(iface == RADIO_INTERFACE_1_6) {
         self->data_poll_req = binder_network_poll_and_retry(self,self->data_poll_req,RADIO_REQ_GET_DATA_REGISTRATION_STATE_1_6,
                                                             binder_network_poll_data_state_cb);
+        self->voice_poll_req = binder_network_poll_and_retry(self,self->voice_poll_req, RADIO_REQ_GET_VOICE_REGISTRATION_STATE_1_6,
+                                                             binder_network_poll_voice_state_cb);
     }
     else if (iface == RADIO_INTERFACE_1_5) {
         self->data_poll_req = binder_network_poll_and_retry(self,
@@ -1892,7 +1894,6 @@ binder_network_initial_rat_query(
     if (iface == RADIO_INTERFACE_1_6) {
         ofono_warn("1.6");
         req = radio_request_new2(self->g,
-
                                  RADIO_REQ_GET_ALLOWED_NETWORK_TYPES_BITMAP, NULL,
                                  binder_network_initial_raf_query_cb, NULL, self);
     }
@@ -1980,8 +1981,7 @@ binder_network_query_pref_mode(
         req = radio_request_new(client,
                                 RADIO_REQ_GET_ALLOWED_NETWORK_TYPES_BITMAP, NULL,
                                 binder_network_raf_query_cb, NULL, self);
-    }
-    else if (iface >= RADIO_INTERFACE_1_4) {
+    } else if (iface >= RADIO_INTERFACE_1_4) {
         /* getPreferredNetworkTypeBitmap(int32 serial); */
         req = radio_request_new(client,
             RADIO_REQ_GET_PREFERRED_NETWORK_TYPE_BITMAP, NULL,
@@ -2162,7 +2162,13 @@ binder_network_current_physical_channel_configs_cb(
     } else if (code == RADIO_IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_6) {
         gsize count;
         guint i;
-
+        const RadioPhysicalChannelConfig_1_6 *configs = gbinder_reader_read_hidl_type_vec(&reader, RadioPhysicalChannelConfig_1_6,&count);
+        for(i = 0; i < count; i++) {
+            if(configs[i].rat == RADIO_TECH_NR && configs[i].status == RADIO_CELL_CONNECTION_SECONDARY_SERVING) {
+                DBG_(self, "NSA 5G connected");
+                nr_connected = TRUE;
+            }
+        }
     }
     else {
         ofono_warn("Unexpected current physical channel configs code %d", code);
@@ -2337,7 +2343,9 @@ binder_network_new(
         radio_client_add_indication_handler(client,
             RADIO_IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_4,
             binder_network_current_physical_channel_configs_cb, self);
-
+    self->ind_id[IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_6] =
+            radio_client_add_indication_handler(client,RADIO_IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_6,
+                                                binder_network_current_physical_channel_configs_cb,self);
     self->radio_event_id[RADIO_EVENT_STATE_CHANGED] =
         binder_radio_add_property_handler(self->radio,
             BINDER_RADIO_PROPERTY_STATE,
