@@ -1091,15 +1091,16 @@ binder_plugin_slot_service_list_proc(
     void* data)
 {
     BinderSlot* slot = data;
+    ofono_warn("%d",slot->version);
     char* fqname = g_strconcat(binder_radio_ifaces[slot->version], "/",
         slot->name, NULL);
 
     slot->list_call_id = 0;
     if (gutil_strv_contains(services, fqname)) {
-        DBG("found %s", fqname);
+        ofono_warn("found %s", fqname);
         slot->flags |= BINDER_PLUGIN_SLOT_HAVE_RADIO_SERVICE;
     } else {
-        DBG("not found %s", fqname);
+        ofono_warn("not found %s", fqname);
         slot->flags &= ~BINDER_PLUGIN_SLOT_HAVE_RADIO_SERVICE;
     }
 
