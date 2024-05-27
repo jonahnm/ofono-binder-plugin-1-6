@@ -1665,7 +1665,7 @@ static void binder_netreg_strength_cb(
 
                 if(ss) {
                     dbm = binder_netreg_get_signal_strength_dbm_1_6
-                            (&ss->gw, &ss->lte, &ss->wcdma, NULL, NULL);
+                            (&ss->gsm, &ss->lte, &ss->wcdma, &ss->tdscdma, &ss->nr);
                 }
             } else {
                 ofono_error("Unexpected getSignalStrength response %d", resp);
