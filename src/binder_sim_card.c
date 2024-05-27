@@ -733,7 +733,7 @@ binder_sim_card_ready(
         ((card->app->app_state == RADIO_APP_STATE_READY) ||
          (card->app->app_state == RADIO_APP_STATE_SUBSCRIPTION_PERSO &&
           card->app->perso_substate == RADIO_PERSO_SUBSTATE_READY));
-    if(toret) {
+    if(toret == TRUE) {
         ofono_warn("Sim card ready.");
     } else {
         ofono_warn("sim card not ready.");
