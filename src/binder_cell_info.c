@@ -334,6 +334,46 @@ binder_cell_info_new_cell_lte(
 }
 static
 struct ofono_cell*
+binder_cell_info_new_cell_lte_1_6(
+        gboolean registered,
+        const RadioCellIdentityLte* id,
+        const RadioSignalStrengthLte_1_6* ss)
+{
+    struct ofono_cell* cell = binder_cell_new();
+    struct ofono_cell_info_lte* lte = &cell->info.lte;
+
+    cell->type = OFONO_CELL_TYPE_LTE;
+    cell->registered = registered;
+
+    binder_cell_info_invalidate(lte, sizeof(*lte));
+    gutil_parse_int(id->mcc.data.str, 10, &lte->mcc);
+    gutil_parse_int(id->mnc.data.str, 10, &lte->mnc);
+    lte->ci = id->ci;
+    lte->pci = id->pci;
+    lte->tac = id->tac;
+    lte->earfcn = id->earfcn;
+    lte->signalStrength = ss->base.signalStrength;
+    lte->rsrp = ss->base.rsrp;
+    lte->rsrq = ss->base.rsrq;
+    lte->rssnr = ss->base.rssnr;
+    lte->cqi = ss->base.cqi;
+    lte->timingAdvance = ss->base.timingAdvance;
+    ofono_warn("[lte] reg=%d%s%s%s%s%s%s%s%s%s%s%s", registered,
+        binder_cell_info_int_format(lte->mcc, ",mcc=%d"),
+        binder_cell_info_int_format(lte->mnc, ",mnc=%d"),
+        binder_cell_info_int_format(lte->ci, ",ci=%d"),
+        binder_cell_info_int_format(lte->pci, ",pci=%d"),
+        binder_cell_info_int_format(lte->tac, ",tac=%d"),
+        binder_cell_info_int_format(lte->signalStrength, ",strength=%d"),
+        binder_cell_info_int_format(lte->rsrp, ",rsrp=%d"),
+        binder_cell_info_int_format(lte->rsrq, ",rsrq=%d"),
+        binder_cell_info_int_format(lte->rssnr, ",rssnr=%d"),
+        binder_cell_info_int_format(lte->cqi, ",cqi=%d"),
+        binder_cell_info_int_format(lte->timingAdvance, ",t=%d"));
+    return cell;
+}
+static
+struct ofono_cell*
 binder_cell_info_new_cell_nr(
     gboolean registered,
     const RadioCellIdentityNr* id,
@@ -370,6 +410,46 @@ binder_cell_info_new_cell_nr(
         binder_cell_info_int_format(nr->csiRsrp, ",csiRsrp=%d"),
         binder_cell_info_int_format(nr->csiRsrq, ",csiRsrq=%d"),
         binder_cell_info_int_format(nr->csiSinr, ",csiSinr=%d"));
+    return cell;
+}
+static
+struct ofono_cell*
+binder_cell_info_new_cell_nr_1_6(
+        gboolean registered,
+        const RadioCellIdentityNr* id,
+        const RadioSignalStrengthNr_1_6* ss)
+{
+    struct ofono_cell* cell = binder_cell_new();
+    struct ofono_cell_info_nr* nr = &cell->info.nr;
+
+    cell->type = OFONO_CELL_TYPE_NR;
+    cell->registered = registered;
+
+    binder_cell_info_invalidate_nr(nr);
+    gutil_parse_int(id->mcc.data.str, 10, &nr->mcc);
+    gutil_parse_int(id->mnc.data.str, 10, &nr->mnc);
+    nr->nci = id->nci;
+    nr->pci = id->pci;
+    nr->tac = id->tac;
+    nr->nrarfcn = id->nrarfcn;
+    nr->ssRsrp = ss->base.ssRsrp;
+    nr->ssRsrq = ss->base.ssRsrq;
+    nr->ssSinr = ss->base.ssSinr;
+    nr->csiRsrp = ss->base.csiRsrp;
+    nr->csiRsrq = ss->base.csiRsrq;
+    nr->csiSinr = ss->base.csiSinr;
+    ofono_warn("[nr] reg=%d%s%s%s%s%s%s%s%s%s%s%s", registered,
+        binder_cell_info_int_format(nr->mcc, ",mcc=%d"),
+        binder_cell_info_int_format(nr->mnc, ",mnc=%d"),
+        binder_cell_info_int64_format(nr->nci, ",nci=%" G_GINT64_FORMAT),
+    binder_cell_info_int_format(nr->pci, ",pci=%d"),
+            binder_cell_info_int_format(nr->tac, ",tac=%d"),
+            binder_cell_info_int_format(nr->ssRsrp, ",ssRsrp=%d"),
+            binder_cell_info_int_format(nr->ssRsrq, ",ssRsrq=%d"),
+            binder_cell_info_int_format(nr->ssSinr, ",ssSinr=%d"),
+            binder_cell_info_int_format(nr->csiRsrp, ",csiRsrp=%d"),
+            binder_cell_info_int_format(nr->csiRsrq, ",csiRsrq=%d"),
+            binder_cell_info_int_format(nr->csiSinr, ",csiSinr=%d"));
     return cell;
 }
 static
@@ -573,28 +653,28 @@ binder_cell_info_array_new_1_6(
         const gboolean registered = cell->registered;
 
         switch ((RADIO_CELL_INFO_TYPE_1_6)cell->cellInfoType) {
-            case RADIO_CELL_INFO_1_5_GSM:
+            case RADIO_CELL_INFO_1_6_GSM:
                 g_ptr_array_add(l, binder_cell_info_new_cell_gsm(registered,
                                                                  &cell->info.gsm.cellIdentityGsm.base.base,
                                                                  &cell->info.gsm.signalStrengthGsm));
                 continue;
             case RADIO_CELL_INFO_1_6_LTE:
-                g_ptr_array_add(l, binder_cell_info_new_cell_lte(registered,
+                g_ptr_array_add(l, binder_cell_info_new_cell_lte_1_6(registered,
                                                                  &cell->info.lte.cellIdentityLte.base.base,
                                                                  &cell->info.lte.signalStrengthLte));
                 continue;
-            case RADIO_CELL_INFO_1_5_WCDMA:
+            case RADIO_CELL_INFO_1_6_WCDMA:
                 g_ptr_array_add(l, binder_cell_info_new_cell_wcdma(registered,
                                                                    &cell->info.wcdma.cellIdentityWcdma.base.base,
                                                                    &cell->info.wcdma.signalStrengthWcdma.base));
                 continue;
             case RADIO_CELL_INFO_1_6_NR:
-                g_ptr_array_add(l, binder_cell_info_new_cell_nr(registered,
+                g_ptr_array_add(l, binder_cell_info_new_cell_nr_1_6(registered,
                                                                 &cell->info.nr.cellIdentityNr.base,
                                                                 &cell->info.nr.signalStrengthNr));
                 continue;
-            case RADIO_CELL_INFO_1_5_TD_SCDMA:
-            case RADIO_CELL_INFO_1_5_CDMA:
+            case RADIO_CELL_INFO_1_6_TD_SCDMA:
+            case RADIO_CELL_INFO_1_6_CDMA:
                 break;
         }
         DBG("unsupported cell type %d", cell->cellInfoType);
