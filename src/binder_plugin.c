@@ -1241,7 +1241,8 @@ binder_plugin_slot_check_radio_client(
     if (!slot->client && need_client) {
         const char* dev = gbinder_servicemanager_device(slot->svcmgr);
 
-        DBG("Bringing up %s", slot->name);
+        ofono_warn("Bringing up %s", slot->name);
+        ofono_warn("%d",slot->version);
         slot->instance = radio_instance_new_with_modem_slot_and_version(dev,
             slot->name, slot->path, slot->config.slot, slot->version);
         slot->client = radio_client_new(slot->instance);
