@@ -61,7 +61,7 @@ G_DEFINE_TYPE(BinderRadioObject, binder_radio_object, BINDER_TYPE_BASE)
 #define THIS_TYPE binder_radio_object_get_type()
 #define THIS(obj) G_TYPE_CHECK_INSTANCE_CAST(obj, THIS_TYPE, BinderRadioObject)
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 /* Assumptions */
 BINDER_BASE_ASSERT_COUNT(BINDER_RADIO_PROPERTY_COUNT);

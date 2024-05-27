@@ -46,7 +46,7 @@ typedef struct binder_call_barring_callback_data {
     gpointer data;
 } BinderCallBarringCbData;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderCallBarring*
 binder_call_barring_get_data(struct ofono_call_barring* b)

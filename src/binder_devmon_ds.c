@@ -87,7 +87,7 @@ typedef struct binder_devmon_ds_io {
 } DevMonIo;
 
 #define DBG_(self,fmt,args...) \
-    DBG("%s: " fmt, radio_client_slot((self)->client), ##args)
+    ofono_warn("%s: " fmt, radio_client_slot((self)->client), ##args)
 
 static inline DevMon* binder_devmon_ds_cast(BinderDevmon* pub)
     { return G_CAST(pub, DevMon, pub); }

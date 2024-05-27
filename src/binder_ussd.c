@@ -49,7 +49,7 @@ typedef struct binder_ussd_cbd {
     gpointer data;
 } BinderUssdCbData;
 
-#define DBG_(cd,fmt,args...) DBG("%s" fmt, (cd)->log_prefix, ##args)
+#define DBG_(cd,fmt,args...) ofono_warn("%s" fmt, (cd)->log_prefix, ##args)
 
 static inline BinderUssd* binder_ussd_get_data(struct ofono_ussd *ussd)
     { return ofono_ussd_get_data(ussd); }

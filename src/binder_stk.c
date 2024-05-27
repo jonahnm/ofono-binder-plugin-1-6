@@ -53,7 +53,7 @@ typedef struct binder_stk_cbd {
     gpointer data;
 } BinderStkCbData;
 
-#define DBG_(cd,fmt,args...) DBG("%s" fmt, (cd)->log_prefix, ##args)
+#define DBG_(cd,fmt,args...) ofono_warn("%s" fmt, (cd)->log_prefix, ##args)
 
 static inline BinderStk* binder_stk_get_data(struct ofono_stk* stk)
     { return ofono_stk_get_data(stk); }
@@ -129,7 +129,7 @@ binder_stk_envelope(
         binder_stk_envelope_cb, binder_stk_cbd_free,
         binder_stk_cbd_new(self, BINDER_CB(cb), data));
 
-    DBG("envelope %s", hex);
+    ofono_warn("envelope %s", hex);
     gbinder_writer_add_cleanup(&writer, g_free, hex);
     gbinder_writer_append_hidl_string(&writer, hex);
     radio_request_submit(req);
@@ -338,7 +338,7 @@ gboolean binder_stk_register(
 {
     BinderStk* self = user_data;
 
-    DBG("");
+    ofono_warn("");
     GASSERT(self->register_id);
     self->register_id = 0;
 

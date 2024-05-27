@@ -235,7 +235,7 @@ connman_set_tech_tethering(
         ConnManObject* self = tech->obj;
 
         tech->tethering = tethering;
-        DBG(CONNMAN_TECH_TETHERING " %s for %s", tethering ? "on" : "off",
+        ofono_warn(CONNMAN_TECH_TETHERING " %s for %s", tethering ? "on" : "off",
             tech->path);
         if (tethering) {
             BinderConnman* connman = &self->pub;
@@ -245,11 +245,11 @@ connman_set_tech_tethering(
                 connman->tethering = TRUE;
                 binder_base_queue_property_change(&self->base,
                     BINDER_CONNMAN_PROPERTY_TETHERING);
-                DBG("Tethering on");
+                ofono_warn("Tethering on");
             }
         } else if (connman_update_tethering(self)) {
             /* Not tethering anymore */
-            DBG("Tethering off");
+            ofono_warn("Tethering off");
         }
     }
 }
@@ -264,7 +264,7 @@ connman_set_tech_connected(
         ConnManObject* self = tech->obj;
 
         tech->connected = connected;
-        DBG(CONNMAN_TECH_CONNECTED " %s for %s", connected ? "on" : "off",
+        ofono_warn(CONNMAN_TECH_CONNECTED " %s for %s", connected ? "on" : "off",
             tech->path);
         if (tech == self->wifi) {
             BinderConnman* connman = &self->pub;
@@ -272,7 +272,7 @@ connman_set_tech_connected(
             connman->wifi_connected = connected;
             binder_base_queue_property_change(&self->base,
                 BINDER_CONNMAN_PROPERTY_WIFI_CONNECTED);
-            DBG("WiFi %sconnected", connected ? "" : "dis");
+            ofono_warn("WiFi %sconnected", connected ? "" : "dis");
         }
     }
 }
@@ -344,7 +344,7 @@ connman_tech_property_changed(
         const char* name = connman_iter_get_string(&it);
 
         if (!connman_tech_set_property(tech, &it)) {
-            DBG("%s changed for %s", name, path);
+            ofono_warn("%s changed for %s", name, path);
         }
         connman_object_emit_pending_signals(self);
     }
@@ -369,7 +369,7 @@ connman_set_techs(
         path = connman_iter_get_string(&entry);
         tech = connman_tech_new(self, path);
 
-        DBG("%s", path);
+        ofono_warn("%s", path);
         if (!g_strcmp0(path, CONNMAN_TECH_PATH_WIFI)) {
             /* WiFi is a special case */
             self->wifi = tech;
@@ -394,7 +394,7 @@ connman_techs_reply(
 
     dbus_error_init(&error);
     if (dbus_set_error_from_message(&error, reply)) {
-        DBG("Failed to get technologies: %s", error.message);
+        ofono_warn("Failed to get technologies: %s", error.message);
         dbus_error_free(&error);
     } else if (dbus_message_has_signature(reply, "a(oa{sv})") &&
         dbus_message_iter_init(reply, &array)) {
@@ -437,7 +437,7 @@ connman_appeared(
     BinderConnman* connman = &self->pub;
 
     if (!connman->present) {
-        DBG("connman is there");
+        ofono_warn("connman is there");
         connman->present = TRUE;
         binder_base_queue_property_change(&self->base,
             BINDER_CONNMAN_PROPERTY_PRESENT);
@@ -456,7 +456,7 @@ connman_vanished(
     BinderConnman* connman = &self->pub;
 
     if (connman->present) {
-        DBG("connman has disappeared");
+        ofono_warn("connman has disappeared");
         g_hash_table_remove_all(self->techs);
         self->wifi = NULL;
         connman->present = FALSE;

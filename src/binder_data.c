@@ -293,7 +293,7 @@ static struct ofono_debug_desc binder_data_debug_desc OFONO_DEBUG_ATTR = {
     .flags = OFONO_DEBUG_FLAG_DEFAULT,
 };
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderDataObject* binder_data_cast(BinderData* net)
     { return net ? THIS(G_CAST(net, BinderDataObject, pub)) : NULL; }
@@ -484,7 +484,7 @@ binder_data_call_new_1_0(
     call->addresses = g_strsplit(dc->addresses.data.str, " ", -1);
     call->pcscf = g_strsplit(dc->pcscf.data.str, " ", -1);
 
-    DBG("[status=%d,retry=%d,cid=%d,active=%d,type=%s,ifname=%s,"
+    ofono_warn("[status=%d,retry=%d,cid=%d,active=%d,type=%s,ifname=%s,"
         "mtu=%d,address=%s,dns=%s,gateways=%s,pcscf=%s]",
         call->status, call->retry_time, call->cid, call->active,
         dc->type.data.str, call->ifname, call->mtu, dc->addresses.data.str,
@@ -502,14 +502,14 @@ binder_data_call_list_1_0(
         gsize i;
         GSList* l = NULL;
 
-        DBG("num=%u", (guint) n);
+        ofono_warn("num=%u", (guint) n);
         for (i = 0; i < n; i++) {
             l = g_slist_insert_sorted(l, binder_data_call_new_1_0(calls + i),
                 binder_data_call_compare);
         }
         return l;
     } else {
-        DBG("no data calls");
+        ofono_warn("no data calls");
         return NULL;
     }
 }
@@ -533,7 +533,7 @@ binder_data_call_new_1_4(
     call->addresses = binder_strv_from_hidl_string_vec(&dc->addresses);
     call->pcscf = binder_strv_from_hidl_string_vec(&dc->pcscf);
 
-    DBG("[status=%d,retry=%d,cid=%d,active=%d,type=%d,ifname=%s,"
+    ofono_warn("[status=%d,retry=%d,cid=%d,active=%d,type=%d,ifname=%s,"
         "mtu=%d,address=%s,dns=%s,gateways=%s,pcscf=%s]",
         call->status, call->retry_time, call->cid, call->active,
         dc->type, call->ifname, call->mtu,
@@ -563,7 +563,7 @@ binder_data_call_new_1_5(
     call->addresses = binder_strv_from_hidl_string_vec(&dc->addresses);
     call->pcscf = binder_strv_from_hidl_string_vec(&dc->pcscf);
 
-    DBG("[status=%d,retry=%d,cid=%d,active=%d,type=%d,ifname=%s,"
+    ofono_warn("[status=%d,retry=%d,cid=%d,active=%d,type=%d,ifname=%s,"
         "mtu=%d,address=%s,dns=%s,gateways=%s,pcscf=%s]",
         call->status, call->retry_time, call->cid, call->active,
         dc->type, call->ifname, call->mtu,
@@ -584,14 +584,14 @@ binder_data_call_list_1_4(
         gsize i;
         GSList* l = NULL;
 
-        DBG("num=%u", (guint) n);
+        ofono_warn("num=%u", (guint) n);
         for (i = 0; i < n; i++) {
             l = g_slist_insert_sorted(l, binder_data_call_new_1_4(calls + i),
                 binder_data_call_compare);
         }
         return l;
     } else {
-        DBG("no data calls");
+        ofono_warn("no data calls");
         return NULL;
     }
 }
@@ -606,14 +606,14 @@ binder_data_call_list_1_5(
         gsize i;
         GSList* l = NULL;
 
-        DBG("num=%u", (guint) n);
+        ofono_warn("num=%u", (guint) n);
         for (i = 0; i < n; i++) {
             l = g_slist_insert_sorted(l, binder_data_call_new_1_5(calls + i),
                 binder_data_call_compare);
         }
         return l;
     } else {
-        DBG("no data calls");
+        ofono_warn("no data calls");
         return NULL;
     }
 }
@@ -705,7 +705,7 @@ binder_data_set_calls(
     if (binder_data_call_list_equal(data->calls, list)) {
         binder_data_call_list_free(list);
     } else {
-        DBG("data calls changed");
+        ofono_warn("data calls changed");
         binder_data_call_list_free(data->calls);
         data->calls = list;
         binder_base_queue_property_change(base, BINDER_DATA_PROPERTY_CALLS);
@@ -1166,7 +1166,7 @@ binder_data_call_setup_retry(
     GASSERT(setup->retry_delay_id);
     setup->retry_delay_id = 0;
     setup->retry_count++;
-    DBG("silent retry %u out of %u", setup->retry_count,
+    ofono_warn("silent retry %u out of %u", setup->retry_count,
         dr->data->options.data_call_retry_limit);
     dr->submit(dr);
     return G_SOURCE_REMOVE;
@@ -1186,13 +1186,13 @@ binder_data_call_retry(
         if (!setup->retry_count) {
             /* No delay first time */
             setup->retry_count++;
-            DBG("silent retry %u out of %u", setup->retry_count,
+            ofono_warn("silent retry %u out of %u", setup->retry_count,
                 options->data_call_retry_limit);
             dr->submit(dr);
         } else {
             const guint ms = options->data_call_retry_delay_ms;
 
-            DBG("silent retry scheduled in %u ms", ms);
+            ofono_warn("silent retry scheduled in %u ms", ms);
             setup->retry_delay_id = g_timeout_add(ms,
                 binder_data_call_setup_retry, setup);
         }
@@ -1294,7 +1294,7 @@ binder_data_call_setup_cb(
              */
             if (network->data.access_tech == OFONO_ACCESS_TECHNOLOGY_EUTRAN &&
                 !self->downgraded_tech) {
-                DBG("downgrading preferred technology");
+                ofono_warn("downgrading preferred technology");
                 self->downgraded_tech = TRUE;
                 binder_data_manager_check_network_mode(self->dm);
                 /* And let this call fail */
@@ -1310,7 +1310,7 @@ binder_data_call_setup_cb(
 
     if (call && call->status == RADIO_DATA_CALL_FAIL_NONE) {
         if (self->downgraded_tech) {
-            DBG("done with status 55 workaround");
+            ofono_warn("done with status 55 workaround");
             self->downgraded_tech = FALSE;
             binder_data_manager_check_network_mode(self->dm);
         }
@@ -1742,7 +1742,7 @@ binder_data_set_preferred_data_modem_cb(
                     resp);
             }
         } else {
-            DBG("setPreferredDataModem error %s",
+            ofono_warn("setPreferredDataModem error %s",
                 binder_radio_error_string(error));
         }
     }
@@ -1766,7 +1766,7 @@ binder_data_set_preferred_data_modem_submit(
     if (req) {
         const guint8 modem_id = binder_data_modem_id(data);
 
-        DBG("setPreferredDataModem(%u)", modem_id);
+        ofono_warn("setPreferredDataModem(%u)", modem_id);
         gbinder_writer_append_int8(&args, modem_id);
         radio_request_set_retry(req, BINDER_RETRY_SECS*1000, -1);
         return binder_data_request_call(dr, req);
@@ -2493,21 +2493,21 @@ binder_data_manager_get_phone_capability_done(
                             }
                             g_string_append_printf(str, "%u", modem[i].modemId);
                         }
-                        DBG("maxActiveData=%u, maxActiveInternetData=%u, "
+                        ofono_warn("maxActiveData=%u, maxActiveInternetData=%u, "
                             "logicalModemList=[%s]", pcap->maxActiveData,
                             pcap->maxActiveInternetData, str->str);
                         g_string_free(str, TRUE);
                     }
                }
             } else {
-                DBG("%s error %s", radio_config_resp_name(dm->rc, resp),
+                ofono_warn("%s error %s", radio_config_resp_name(dm->rc, resp),
                     binder_radio_error_string(error));
             }
         } else {
             ofono_error("Unexpected getPhoneCapability response %d", resp);
         }
     } else {
-        DBG("getPhoneCapability error %s", binder_radio_error_string(error));
+        ofono_warn("getPhoneCapability error %s", binder_radio_error_string(error));
     }
 }
 

@@ -48,7 +48,7 @@ typedef struct binder_devinfo_callback_data {
     gpointer data;
 } BinderDevInfoCbData;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderDevInfo* binder_devinfo_get_data(struct ofono_devinfo* di)
     { return ofono_devinfo_get_data(di); }

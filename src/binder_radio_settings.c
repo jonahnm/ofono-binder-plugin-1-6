@@ -39,7 +39,7 @@ typedef struct binder_radio_settings_cbd {
     gpointer data;
 } BinderRadioSettingsCbData;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderRadioSettings*
 binder_radio_settings_get_data(struct ofono_radio_settings* rs)

@@ -103,9 +103,9 @@ typedef struct binder_voicecall_info {
 
 #define ANSWER_FLAGS BINDER_EXT_CALL_ANSWER_NO_FLAGS
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 #define DBG__(vc,fmt,args...) \
-    DBG("%s" fmt, binder_voicecall_get_data(vc)->log_prefix, ##args)
+    ofono_warn("%s" fmt, binder_voicecall_get_data(vc)->log_prefix, ##args)
 
 static
 void
@@ -184,7 +184,7 @@ binder_voicecall_ext_call_state_to_ofono(
     case BINDER_EXT_CALL_STATE_WAITING:
         return OFONO_CALL_STATUS_WAITING;
     }
-    DBG("unexpected call state %d", state);
+    ofono_warn("unexpected call state %d", state);
     return OFONO_CALL_STATUS_DISCONNECTED;
 }
 
@@ -256,7 +256,7 @@ binder_voicecall_info_new(
         oc->clip_validity = OFONO_CLIP_VALIDITY_NOT_AVAILABLE;
     }
 
-    DBG("[id=%d,status=%d,type=%d,number=%s,name=%s]", oc->id,
+    ofono_warn("[id=%d,status=%d,type=%d,number=%s,name=%s]", oc->id,
         oc->status, oc->type, oc->phone_number.number, oc->name);
 
     return call;
@@ -293,7 +293,7 @@ binder_voicecall_info_ext_new(
         oc->clip_validity = OFONO_CLIP_VALIDITY_NOT_AVAILABLE;
     }
 
-    DBG("[id=%d,status=%d,type=%d,number=%s,name=%s]", oc->id,
+    ofono_warn("[id=%d,status=%d,type=%d,number=%s,name=%s]", oc->id,
         oc->status, oc->type, oc->phone_number.number, oc->name);
 
     call->ext = ext;
@@ -1778,7 +1778,7 @@ binder_voicecall_ecclist_changed(
         en_list = g_new(const char*, count + 1);
         for (i = 0; i < count; i++) {
             en_list[i] = list[i].number.data.str;
-            DBG("%s", en_list[i]);
+            ofono_warn("%s", en_list[i]);
         }
         en_list[i] = NULL;
     }

@@ -180,7 +180,7 @@ binder_sim_query_retry_count_cb(
     const GBinderReader* args,
     gpointer user_data);
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderSim* binder_sim_get_data(struct ofono_sim* sim)
     { return ofono_sim_get_data(sim); }
@@ -405,7 +405,7 @@ binder_sim_io_response_new(
         BinderSimIoResponse* resp = g_slice_new0(BinderSimIoResponse);
         const char* hex = result->response.data.str;
 
-        DBG("sw1=0x%02X,sw2=0x%02X,%s", result->sw1, result->sw2, hex);
+        ofono_warn("sw1=0x%02X,sw2=0x%02X,%s", result->sw1, result->sw2, hex);
         resp->sw1 = result->sw1;
         resp->sw2 = result->sw2;
         resp->data = binder_decode_hex(hex, -1, &resp->data_len);
@@ -490,13 +490,13 @@ binder_sim_io_response_ok(
                 high = mid - 1;
             } else {
                 /* Message found */
-                DBG("error: %s", errmsg[mid].msg);
+                ofono_warn("error: %s", errmsg[mid].msg);
                 return FALSE;
             }
         }
 
         /* No message */
-        DBG("error %02x %02x", res->sw1, res->sw2);
+        ofono_warn("error %02x %02x", res->sw1, res->sw2);
     }
     return FALSE;
 }

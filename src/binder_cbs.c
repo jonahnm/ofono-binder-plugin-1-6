@@ -48,7 +48,7 @@ typedef struct binder_cbs_cbd {
 #define CBS_CHECK_RETRY_MS    1000
 #define CBS_CHECK_RETRY_COUNT 30
 
-#define DBG_(cd,fmt,args...) DBG("%s" fmt, (cd)->log_prefix, ##args)
+#define DBG_(cd,fmt,args...) ofono_warn("%s" fmt, (cd)->log_prefix, ##args)
 
 static inline BinderCbs* binder_cbs_get_data(struct ofono_cbs* cbs)
     { return ofono_cbs_get_data(cbs); }

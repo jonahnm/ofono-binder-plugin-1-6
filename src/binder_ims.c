@@ -57,7 +57,7 @@ typedef struct binder_ims_cbd {
     void* cb_data;
 } BinderImsCbData;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderIms* binder_ims_get_data(struct ofono_ims* ims)
     { return ofono_ims_get_data(ims); }

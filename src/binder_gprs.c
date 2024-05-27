@@ -53,7 +53,7 @@ typedef struct binder_gprs_cbd {
     gpointer data;
 } BinderGprsCbData;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static BinderGprs* binder_gprs_get_data(struct ofono_gprs* ofono)
     { return ofono ? ofono_gprs_get_data(ofono) : NULL; }
@@ -226,7 +226,7 @@ binder_gprs_registration_status(
     const enum ofono_netreg_status status = self->attached ?
         self->reg_status : OFONO_NETREG_STATUS_NOT_REGISTERED;
 
-    DBG("%d (%s)", status, ofono_netreg_status_to_string(status));
+    ofono_warn("%d (%s)", status, ofono_netreg_status_to_string(status));
     cb(binder_error_ok(&err), status, data);
 }
 

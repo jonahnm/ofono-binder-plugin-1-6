@@ -55,7 +55,7 @@ typedef struct binder_gprs_context {
     BinderGprsContextCall deactivate;
 } BinderGprsContext;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderGprsContext*
 binder_gprs_context_get_data(struct ofono_gprs_context *gprs)

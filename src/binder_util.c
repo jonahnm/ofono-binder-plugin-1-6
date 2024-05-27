@@ -325,7 +325,7 @@ binder_pref_mask(
         return none;
     }
 
-    DBG("unexpected pref mode %d", pref);
+    ofono_warn("unexpected pref mode %d", pref);
     return none;
 }
 
@@ -423,7 +423,7 @@ binder_access_tech_from_radio_tech(
         break;
     }
 
-    DBG("Unknown radio tech %d", radio_tech);
+    ofono_warn("Unknown radio tech %d", radio_tech);
     return OFONO_ACCESS_TECHNOLOGY_NONE;
 }
 

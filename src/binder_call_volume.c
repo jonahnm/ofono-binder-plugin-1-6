@@ -39,7 +39,7 @@ typedef struct binder_call_volume_req {
     gpointer data;
 } BinderCallVolumeCbData;
 
-#define DBG_(cd,fmt,args...) DBG("%s" fmt, (cd)->log_prefix, ##args)
+#define DBG_(cd,fmt,args...) ofono_warn("%s" fmt, (cd)->log_prefix, ##args)
 
 static inline BinderCallVolume*
 binder_call_volume_get_data(struct ofono_call_volume* v)

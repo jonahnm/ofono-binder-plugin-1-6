@@ -220,7 +220,7 @@ static const BinderRadioCapsRequestTxPhase binder_radio_caps_fail_phase = {
 
 static GUtilIdlePool* binder_radio_caps_shared_pool = NULL;
 
-#define DBG_(obj, fmt, args...) DBG("%s" fmt, (obj)->log_prefix, ##args)
+#define DBG_(obj, fmt, args...) ofono_warn("%s" fmt, (obj)->log_prefix, ##args)
 
 static
 void
@@ -366,12 +366,12 @@ binder_radio_caps_check_done(
             if (error == RADIO_ERROR_NONE) {
                 result = binder_read_hidl_struct(args, RadioCapability);
                 if (result) {
-                    DBG("tx=%d,phase=%d,raf=0x%x,uuid=%s,status=%d",
+                    ofono_warn("tx=%d,phase=%d,raf=0x%x,uuid=%s,status=%d",
                         result->session, result->phase, result->raf,
                         result->logicalModemUuid.data.str, result->status);
                 }
             } else {
-                DBG("getRadioCapability error %s",
+                ofono_warn("getRadioCapability error %s",
                     binder_radio_error_string(error));
             }
         } else {
@@ -1054,7 +1054,7 @@ binder_radio_caps_manager_issue_requests(
     guint i;
     const GPtrArray* list = self->caps_list;
 
-    DBG("%s transaction %d", phase->name, self->tx_id);
+    ofono_warn("%s transaction %d", phase->name, self->tx_id);
     for (i = 0; i < list->len; i++) {
         BinderRadioCapsObject* caps = list->pdata[i];
 
@@ -1174,7 +1174,7 @@ binder_radio_caps_manager_abort_cb(
     DBG_(caps, "tx_pending=%d", caps->tx_pending);
 
     if (!binder_radio_caps_manager_tx_pending(self)) {
-        DBG("transaction aborted");
+        ofono_warn("transaction aborted");
         binder_radio_caps_manager_transaction_done(self);
     }
 }
@@ -1189,7 +1189,7 @@ binder_radio_caps_manager_abort_transaction(
     const int prev_tx_id = self->tx_id;
 
     /* Generate new transaction id */
-    DBG("aborting transaction %d", prev_tx_id);
+    ofono_warn("aborting transaction %d", prev_tx_id);
     binder_radio_caps_manager_next_transaction(self);
 
     /* Re-associate the modems with the new transaction */
@@ -1252,7 +1252,7 @@ void binder_radio_caps_manager_next_phase_cb(
     if (!ok) {
         if (!self->tx_failed) {
             self->tx_failed = TRUE;
-            DBG("transaction %d failed", self->tx_id);
+            ofono_warn("transaction %d failed", self->tx_id);
         }
     }
 
@@ -1282,7 +1282,7 @@ binder_radio_caps_manager_next_phase(
         GSList* l;
         guint i;
 
-        DBG("transaction %d is done", self->tx_id);
+        ofono_warn("transaction %d is done", self->tx_id);
 
         /* Update all caps before emitting signals */
         for (i = 0; i < list->len; i++) {
@@ -1323,7 +1323,7 @@ binder_radio_caps_manager_data_off_done(
 {
     if (!binder_radio_caps_manager_tx_pending(self)) {
         if (self->tx_failed) {
-            DBG("failed to start the transaction");
+            ofono_warn("failed to start the transaction");
             binder_data_manager_assert_data_on(self->data_manager);
             binder_radio_caps_manager_recheck_later(self);
             binder_radio_caps_manager_foreach(self,
@@ -1331,7 +1331,7 @@ binder_radio_caps_manager_data_off_done(
             g_signal_emit(self, binder_radio_caps_manager_signals
                 [CAPS_MANAGER_SIGNAL_ABORTED], 0);
         } else {
-            DBG("starting transaction");
+            ofono_warn("starting transaction");
             binder_radio_caps_manager_next_phase(self);
         }
     }
@@ -1409,7 +1409,7 @@ binder_radio_caps_manager_deactivate_data_call_done(
 
     if (!binder_radio_caps_manager_tx_pending(self)) {
         if (self->tx_failed) {
-            DBG("failed to start the transaction");
+            ofono_warn("failed to start the transaction");
             binder_radio_caps_manager_recheck_later(self);
             binder_radio_caps_manager_foreach(self,
                 binder_radio_caps_manager_cancel_cb);
@@ -1596,7 +1596,7 @@ binder_radio_caps_tx_wait_sim_io_cb(
     }
 
     /* We no longer need to be notified about SIM I/O activity */
-    DBG("SIM I/O has calmed down");
+    ofono_warn("SIM I/O has calmed down");
     binder_radio_caps_manager_foreach(self,
         binder_radio_caps_manager_stop_sim_io_watch);
 
@@ -1626,7 +1626,7 @@ binder_radio_caps_manager_start_transaction(
 
     /* Start the new request transaction */
     binder_radio_caps_manager_next_transaction(self);
-    DBG("transaction %d", self->tx_id);
+    ofono_warn("transaction %d", self->tx_id);
 
     for (i = 0; i < list->len; i++) {
         BinderRadioCapsObject* caps = list->pdata[i];
@@ -1644,9 +1644,9 @@ binder_radio_caps_manager_start_transaction(
     GASSERT(count);
     if (!count) {
         /* This is not supposed to happen */
-        DBG("nothing to do!");
+        ofono_warn("nothing to do!");
     } else if (sim_io_active) {
-        DBG("waiting for SIM I/O to calm down");
+        ofono_warn("waiting for SIM I/O to calm down");
         binder_radio_caps_manager_foreach_tx(self,
             binder_radio_caps_manager_start_sim_io_watch);
     } else {
@@ -1668,7 +1668,7 @@ binder_radio_caps_manager_set_order(
     const GPtrArray* list = self->caps_list;
     guint i;
 
-    DBG("%s => %s",
+    ofono_warn("%s => %s",
         binder_radio_caps_manager_order_str(self, self->order_list->pdata[0]),
         binder_radio_caps_manager_order_str(self, order));
 
@@ -1707,7 +1707,7 @@ binder_radio_caps_manager_check(
                 score += binder_radio_caps_score(c1, c2->cap);
             }
 
-            DBG("%s %d", binder_radio_caps_manager_order_str(self, order),
+            ofono_warn("%s %d", binder_radio_caps_manager_order_str(self, order),
                 score);
             if (score > highest_score) {
                 highest_score = score;

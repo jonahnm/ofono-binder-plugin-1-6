@@ -45,7 +45,7 @@ typedef struct binder_call_forwarding_cbd {
 
 #define CF_TIME_DEFAULT (0)
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderCallForwarding*
 binder_call_forwarding_get_data(struct ofono_call_forwarding* f)

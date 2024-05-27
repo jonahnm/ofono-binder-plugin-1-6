@@ -45,7 +45,7 @@ typedef struct binder_call_settings_cbd {
     gpointer data;
 } BinderCallSettingsCbData;
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderCallSettings*
 binder_call_settings_get_data(struct ofono_call_settings* s)

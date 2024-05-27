@@ -56,7 +56,7 @@ G_DEFINE_TYPE(BinderImsRegObject, binder_ims_reg_object, BINDER_TYPE_BASE)
 #define THIS_TYPE binder_ims_reg_object_get_type()
 #define THIS(obj) G_TYPE_CHECK_INSTANCE_CAST(obj,THIS_TYPE,BinderImsRegObject)
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 /* Assumptions */
 BINDER_BASE_ASSERT_COUNT(BINDER_IMS_REG_PROPERTY_COUNT);

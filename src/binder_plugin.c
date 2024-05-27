@@ -505,7 +505,7 @@ binder_plugin_check_if_started(
         }
 
         if (!l) {
-            DBG("Startup done!");
+            ofono_warn("Startup done!");
             g_source_remove(plugin->start_timeout_id);
             /* id is zeroed by binder_plugin_manager_start_done */
             GASSERT(!plugin->start_timeout_id);
@@ -634,7 +634,7 @@ binder_plugin_radio_state_changed(
         radio_state == RADIO_STATE_OFF) {
         BinderSlot* slot = user_data;
 
-        DBG("power off for slot %u", slot->config.slot);
+        ofono_warn("power off for slot %u", slot->config.slot);
         binder_plugin_foreach_slot(slot->plugin, binder_plugin_power_check);
     }
 }
@@ -691,7 +691,7 @@ binder_plugin_modem_check(
         radio_client_connected(slot->client)) {
         BinderModem* modem;
 
-        DBG("%s registering modem", slot->name);
+        ofono_warn("%s registering modem", slot->name);
         modem = binder_modem_create(slot->client, slot->name, slot->path,
             slot->imei, slot->imeisv, &slot->config, slot->ext_slot,
             slot->radio, slot->network, slot->sim_card, slot->data,
@@ -741,7 +741,7 @@ binder_plugin_slot_startup_check(
         }
 
         /* Register this slot with the sailfish manager plugin */
-        DBG("registering slot %s", slot->path);
+        ofono_warn("registering slot %s", slot->path);
         ofono_slot = slot->handle = ofono_slot_add(plugin->slot_manager,
             slot->path, slot->config.techs, slot->imei,
             slot->imeisv, binder_plugin_sim_presence(slot),
@@ -775,7 +775,7 @@ binder_plugin_handle_error(
     ofono_slot_error(slot->handle, BINDER_ERROR_ID_DEATH, message);
     binder_plugin_slot_shutdown(slot, TRUE);
 
-    DBG("%s retrying", slot->name);
+    ofono_warn("%s retrying", slot->name);
     binder_plugin_slot_check(slot);
 }
 
@@ -796,7 +796,7 @@ binder_plugin_caps_switch_aborted(
 {
     BinderPlugin* plugin = user_data;
 
-    DBG("radio caps switch aborted");
+    ofono_warn("radio caps switch aborted");
     ofono_slot_manager_error(plugin->slot_manager,
         BINDER_ERROR_ID_CAPS_SWITCH_ABORTED,
         "Capability switch transaction aborted");
@@ -839,7 +839,7 @@ binder_plugin_device_identity_cb(
                  * already known IMEI (if radio service has crashed and we
                  * have reconnected)
                  */
-                DBG("%s %s %s", slot->name, imei, imeisv);
+                ofono_warn("%s %s %s", slot->name, imei, imeisv);
                 if (slot->imei && imei && strcmp(slot->imei, imei)) {
                     ofono_warn("IMEI has changed \"%s\" -> \"%s\"",
                         slot->imei, imei);
@@ -884,7 +884,7 @@ binder_plugin_slot_get_device_identity(
     radio_request_set_retry(req, BINDER_RETRY_MS, retries);
     radio_request_drop(slot->imei_req);
     if (radio_request_submit(req)) {
-        DBG("%s submitted getDeviceIdentity", slot->name);
+        ofono_warn("%s submitted getDeviceIdentity", slot->name);
         slot->imei_req = req; /* Keep the ref */
     } else {
         ofono_error("Failed to submit getDeviceIdentity for %s", slot->name);
@@ -905,10 +905,10 @@ binder_plugin_slot_sim_state_changed(
     if (card->status) {
         switch (presence) {
         case OFONO_SLOT_SIM_PRESENT:
-            DBG("SIM found in slot %u", slot->config.slot);
+            ofono_warn("SIM found in slot %u", slot->config.slot);
             break;
         case OFONO_SLOT_SIM_ABSENT:
-            DBG("No SIM in slot %u", slot->config.slot);
+            ofono_warn("No SIM in slot %u", slot->config.slot);
             break;
         default:
             break;
@@ -925,7 +925,7 @@ binder_plugin_slot_sim_state_changed(
              * Some adaptations fail RADIO_REQ_GET_DEVICE_IDENTITY until
              * the modem has been properly initialized.
              */
-            DBG("giving slot %u last chance", slot->config.slot);
+            ofono_warn("giving slot %u last chance", slot->config.slot);
             binder_plugin_slot_get_device_identity(slot, FALSE,
                 BINDER_GET_DEVICE_IDENTITY_RETRIES_LAST);
         }
@@ -943,7 +943,7 @@ binder_plugin_slot_radio_caps_cb(
 {
     BinderSlot* slot = user_data;
 
-    DBG("radio caps %s", cap ? "ok" : "NOT supported");
+    ofono_warn("radio caps %s", cap ? "ok" : "NOT supported");
     GASSERT(slot->caps_check_req);
     radio_request_drop(slot->caps_check_req);
     slot->caps_check_req = NULL;
@@ -978,7 +978,7 @@ binder_plugin_slot_connected(
 
     GASSERT(radio_client_connected(slot->client));
     GASSERT(!slot->client_event_id[CLIENT_EVENT_CONNECTED]);
-    DBG("%s", slot->name);
+    ofono_warn("%s", slot->name);
 
     /*
      * Ofono modem will be registered after getDeviceIdentity() call
@@ -1138,7 +1138,7 @@ binder_plugin_service_registration_proc(
     const char* name,
     void* plugin)
 {
-    DBG("%s is there", name);
+    ofono_warn("%s is there", name);
     binder_plugin_service_check((BinderPlugin*) plugin);
 }
 
@@ -1149,7 +1149,7 @@ binder_plugin_slot_service_registration_proc(
     const char* name,
     void* slot)
 {
-    DBG("%s is there", name);
+    ofono_warn("%s is there", name);
     binder_plugin_slot_check((BinderSlot*) slot);
 }
 
@@ -1273,7 +1273,7 @@ binder_plugin_slot_check_radio_client(
             slot->instance = NULL;
         }
     } else if (slot->client && !need_client) {
-        DBG("Shutting down %s", slot->name);
+        ofono_warn("Shutting down %s", slot->name);
         binder_plugin_slot_shutdown(slot, TRUE);
     }
 }
@@ -1455,7 +1455,7 @@ binder_plugin_create_slot(
     if (sval) {
         slot = g_new0(BinderSlot, 1);
         slot->path = sval;
-        DBG("%s: " BINDER_CONF_SLOT_PATH " %s", group, slot->path);
+        ofono_warn("%s: " BINDER_CONF_SLOT_PATH " %s", group, slot->path);
     } else {
         /* Path is really required */
         ofono_error("Missing path for slot %s", name);
@@ -1513,7 +1513,7 @@ binder_plugin_create_slot(
         g_clear_error(&error);
     } else if (ival >= 0) {
         config->slot = ival;
-        DBG("%s: " BINDER_CONF_SLOT_NUMBER " %u", group, config->slot);
+        ofono_warn("%s: " BINDER_CONF_SLOT_NUMBER " %u", group, config->slot);
     }
 
     /* Everything else may be in the [Settings] section */
@@ -1528,7 +1528,7 @@ binder_plugin_create_slot(
         if (name) {
             slot->ext_plugin = binder_ext_plugin_get(name);
             if (slot->ext_plugin) {
-                DBG("%s: " BINDER_CONF_SLOT_EXT_PLUGIN " %s", group, sval);
+                ofono_warn("%s: " BINDER_CONF_SLOT_EXT_PLUGIN " %s", group, sval);
                 slot->ext_params = g_hash_table_ref(params);
                 binder_ext_plugin_ref(slot->ext_plugin);
             } else {
@@ -1547,7 +1547,7 @@ binder_plugin_create_slot(
         BINDER_CONF_SLOT_RADIO_INTERFACE);
     ofono_warn("RadioInterfact: %s",sval);
     if (sval) {
-        DBG("%s: " BINDER_CONF_SLOT_RADIO_INTERFACE " %s", group, sval);
+        ofono_warn("%s: " BINDER_CONF_SLOT_RADIO_INTERFACE " %s", group, sval);
         slot->version = binder_plugin_parse_radio_interface(sval);
         g_free(sval);
     } else {
@@ -1557,14 +1557,14 @@ binder_plugin_create_slot(
     /* startTimeout */
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_START_TIMEOUT_MS, &ival) && ival >= 0) {
-        DBG("%s: " BINDER_CONF_SLOT_START_TIMEOUT_MS " %d ms", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_START_TIMEOUT_MS " %d ms", group, ival);
         slot->start_timeout_ms = ival;
     }
 
     /* timeout */
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_REQUEST_TIMEOUT_MS, &ival) && ival >= 0) {
-        DBG("%s: " BINDER_CONF_SLOT_REQUEST_TIMEOUT_MS " %d ms", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_REQUEST_TIMEOUT_MS " %d ms", group, ival);
         slot->req_timeout_ms = ival;
     }
 
@@ -1584,7 +1584,7 @@ binder_plugin_create_slot(
         "ims", BINDER_FEATURE_IMS,
         "all", BINDER_FEATURE_ALL, NULL) && ival) {
         config->features &= ~ival;
-        DBG("%s: " BINDER_CONF_SLOT_DISABLE_FEATURES " 0x%04x", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_DISABLE_FEATURES " 0x%04x", group, ival);
     }
 
     /* deviceStateTracking */
@@ -1594,7 +1594,7 @@ binder_plugin_create_slot(
         "all", BINDER_DEVMON_ALL,
         "ds", BINDER_DEVMON_DS,
         "if", BINDER_DEVMON_IF, NULL) && ival) {
-        DBG("%s: " BINDER_CONF_SLOT_DEVMON " 0x%04x", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_DEVMON " 0x%04x", group, ival);
     } else {
         ival = BINDER_DEFAULT_SLOT_DEVMON;
     }
@@ -1615,14 +1615,14 @@ binder_plugin_create_slot(
     /* emptyPinQuery */
     if (ofono_conf_get_boolean(file, group,
         BINDER_CONF_SLOT_EMPTY_PIN_QUERY, &config->empty_pin_query)) {
-        DBG("%s: " BINDER_CONF_SLOT_EMPTY_PIN_QUERY " %s", group,
+        ofono_warn("%s: " BINDER_CONF_SLOT_EMPTY_PIN_QUERY " %s", group,
             config->empty_pin_query ? "yes" : "no");
     }
 
     /* useDataProfiles */
     if (ofono_conf_get_boolean(file, group,
         BINDER_CONF_SLOT_USE_DATA_PROFILES, &dpc->use_data_profiles)) {
-        DBG("%s: " BINDER_CONF_SLOT_USE_DATA_PROFILES " %s", group,
+        ofono_warn("%s: " BINDER_CONF_SLOT_USE_DATA_PROFILES " %s", group,
             dpc->use_data_profiles ? "yes" : "no");
     }
 
@@ -1630,14 +1630,14 @@ binder_plugin_create_slot(
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_DEFAULT_DATA_PROFILE_ID, &ival)) {
         dpc->default_profile_id = ival;
-        DBG("%s: " BINDER_CONF_SLOT_DEFAULT_DATA_PROFILE_ID " %d", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_DEFAULT_DATA_PROFILE_ID " %d", group, ival);
     }
 
     /* mmsDataProfileId */
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_MMS_DATA_PROFILE_ID, &ival)) {
         dpc->mms_profile_id = ival;
-        DBG("%s: " BINDER_CONF_SLOT_MMS_DATA_PROFILE_ID " %d", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_MMS_DATA_PROFILE_ID " %d", group, ival);
     }
 
     /* allowDataReq */
@@ -1645,7 +1645,7 @@ binder_plugin_create_slot(
         BINDER_CONF_SLOT_ALLOW_DATA_REQ, &ival,
         "on", BINDER_ALLOW_DATA_ENABLED,
         "off", BINDER_ALLOW_DATA_DISABLED, NULL)) {
-        DBG("%s: " BINDER_CONF_SLOT_ALLOW_DATA_REQ " %s", group,
+        ofono_warn("%s: " BINDER_CONF_SLOT_ALLOW_DATA_REQ " %s", group,
             (ival == BINDER_ALLOW_DATA_ENABLED) ? "enabled": "disabled");
         slot->data_opt.allow_data = ival;
     }
@@ -1694,14 +1694,14 @@ binder_plugin_create_slot(
     /* lteNetworkMode */
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_LTE_MODE, &ival)) {
-        DBG("%s: " BINDER_CONF_SLOT_LTE_MODE " %d", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_LTE_MODE " %d", group, ival);
         config->lte_network_mode = ival;
     }
 
     /* umtsNetworkMode */
     if (ofono_conf_get_integer(file, group,
         BINDER_CONF_SLOT_UMTS_MODE, &ival)) {
-        DBG("%s: " BINDER_CONF_SLOT_UMTS_MODE " %d", group, ival);
+        ofono_warn("%s: " BINDER_CONF_SLOT_UMTS_MODE " %d", group, ival);
         config->umts_network_mode = ival;
     }
 
@@ -1709,7 +1709,7 @@ binder_plugin_create_slot(
     if (ofono_conf_get_boolean(file, group,
         BINDER_CONF_SLOT_USE_NETWORK_SCAN,
         &config->use_network_scan)) {
-        DBG("%s: " BINDER_CONF_SLOT_USE_NETWORK_SCAN " %s", group,
+        ofono_warn("%s: " BINDER_CONF_SLOT_USE_NETWORK_SCAN " %s", group,
             config->use_network_scan ? "yes" : "no");
     }
 
@@ -1717,7 +1717,7 @@ binder_plugin_create_slot(
     if (ofono_conf_get_boolean(file, group,
         BINDER_CONF_SLOT_REPLACE_STRANGE_OPER,
         &config->replace_strange_oper)) {
-        DBG("%s: " BINDER_CONF_SLOT_REPLACE_STRANGE_OPER " %s", group,
+        ofono_warn("%s: " BINDER_CONF_SLOT_REPLACE_STRANGE_OPER " %s", group,
             config->replace_strange_oper ? "yes" : "no");
     }
 
@@ -1729,7 +1729,7 @@ binder_plugin_create_slot(
 
         /* MIN,MAX */
         if (dbms[0] < dbms[1]) {
-            DBG("%s: " BINDER_CONF_SLOT_SIGNAL_STRENGTH_RANGE " [%d,%d]",
+            ofono_warn("%s: " BINDER_CONF_SLOT_SIGNAL_STRENGTH_RANGE " [%d,%d]",
                 group, dbms[0], dbms[1]);
             config->signal_strength_dbm_weak = dbms[0];
             config->signal_strength_dbm_strong = dbms[1];
@@ -1747,7 +1747,7 @@ binder_plugin_slot_free(
 {
     BinderPlugin* plugin = slot->plugin;
 
-    DBG("%s", slot->name);
+    ofono_warn("%s", slot->name);
     binder_plugin_slot_shutdown(slot, TRUE);
     binder_ext_plugin_unref(slot->ext_plugin);
     plugin->slots = g_slist_remove(plugin->slots, slot);
@@ -1856,14 +1856,14 @@ binder_plugin_parse_identity(
     }
 
     if (pw) {
-        DBG("user %s -> %d", user, pw->pw_uid);
+        ofono_warn("user %s -> %d", user, pw->pw_uid);
         id->uid = pw->pw_uid;
     } else {
         ofono_warn("Invalid user '%s'", user);
     }
 
     if (gr) {
-        DBG("group %s -> %d", group, gr->gr_gid);
+        ofono_warn("group %s -> %d", group, gr->gr_gid);
         id->gid = gr->gr_gid;
     } else if (group) {
         ofono_warn("Invalid group '%s'", group);
@@ -1897,7 +1897,7 @@ binder_plugin_find_slots(
                 if (slot) {
                     slot += suffix_len;
                     if (*slot && !gutil_strv_contains(slots, slot)) {
-                        DBG("found %s", slot);
+                        ofono_warn("found %s", slot);
                         slots = gutil_strv_add(slots, slot);
                     }
                 }
@@ -1949,7 +1949,7 @@ binder_plugin_parse_config_file(
     if (ofono_conf_get_flag(file, OFONO_COMMON_SETTINGS_GROUP,
         BINDER_CONF_PLUGIN_3GLTE_HANDOVER,
         BINDER_DATA_MANAGER_3GLTE_HANDOVER, &ival)) {
-        DBG(BINDER_CONF_PLUGIN_3GLTE_HANDOVER " %s", (ival &
+        ofono_warn(BINDER_CONF_PLUGIN_3GLTE_HANDOVER " %s", (ival &
             BINDER_DATA_MANAGER_3GLTE_HANDOVER) ? "yes" : "no");
         ps->dm_flags = ival;
     }
@@ -1967,7 +1967,7 @@ binder_plugin_parse_config_file(
         OFONO_RADIO_ACCESS_MODE_LTE,
         ofono_radio_access_mode_to_string(OFONO_RADIO_ACCESS_MODE_NR),
         OFONO_RADIO_ACCESS_MODE_NR, NULL)) {
-        DBG(BINDER_CONF_PLUGIN_MAX_NON_DATA_MODE " %s",
+        ofono_warn(BINDER_CONF_PLUGIN_MAX_NON_DATA_MODE " %s",
             ofono_radio_access_mode_to_string(ival));
         ps->non_data_mode = ival;
     }
@@ -1978,7 +1978,7 @@ binder_plugin_parse_config_file(
         "auto", BINDER_SET_RADIO_CAP_AUTO,
         "on", BINDER_SET_RADIO_CAP_ENABLED,
         "off", BINDER_SET_RADIO_CAP_DISABLED, NULL)) {
-        DBG(BINDER_CONF_PLUGIN_SET_RADIO_CAP " %d", ival);
+        ofono_warn(BINDER_CONF_PLUGIN_SET_RADIO_CAP " %d", ival);
         ps->set_radio_cap = ival;
     }
 
@@ -1986,7 +1986,7 @@ binder_plugin_parse_config_file(
     sval = g_key_file_get_string(file, OFONO_COMMON_SETTINGS_GROUP,
         BINDER_CONF_PLUGIN_IDENTITY, NULL);
     if (sval) {
-        DBG(BINDER_CONF_PLUGIN_IDENTITY " %s", sval);
+        ofono_warn(BINDER_CONF_PLUGIN_IDENTITY " %s", sval);
         binder_plugin_parse_identity(&ps->identity, sval);
         g_free(sval);
     }
@@ -2043,7 +2043,7 @@ binder_plugin_parse_config_file(
                     const char* slot = *s;
 
                     if (binder_plugin_pattern_match(ignore, slot)) {
-                        DBG("skipping %s", slot);
+                        ofono_warn("skipping %s", slot);
                     } else {
                         list = binder_plugin_try_add_slot(list,
                             binder_plugin_create_slot(sm, slot, file));
@@ -2084,7 +2084,7 @@ binder_plugin_load_config(
     /* If device is not configured, then try the default one */
     dev = cfg_dev ? cfg_dev : BINDER_DEFAULT_PLUGIN_DEVICE;
     if ((plugin->svcmgr = gbinder_servicemanager_new(dev)) != NULL) {
-        DBG("using %sbinder device %s", cfg_dev ? "" : "default ", dev);
+        ofono_warn("using %sbinder device %s", cfg_dev ? "" : "default ", dev);
         binder_plugin_parse_config_file(plugin, file);
     } else {
         ofono_warn("Can't open %sbinder device %s",
@@ -2154,7 +2154,7 @@ void
 binder_plugin_switch_identity(
     const BinderPluginIdentity* id)
 {
-    DBG("%d:%d", id->uid, id->gid);
+    ofono_warn("%d:%d", id->uid, id->gid);
     binder_plugin_set_storage_perm(ofono_storage_dir(), id);
     if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) < 0) {
         ofono_error("prctl(PR_SET_KEEPCAPS) failed: %s", strerror(errno));
@@ -2187,7 +2187,7 @@ binder_plugin_slot_modem_changed(
 {
     BinderSlot *slot = user_data;
 
-    DBG("%s", slot->path);
+    ofono_warn("%s", slot->path);
     if (!watch->modem) {
         GASSERT(slot->modem);
         slot->modem = NULL;
@@ -2204,7 +2204,7 @@ binder_plugin_manager_start_timeout(
 {
     BinderPlugin* plugin = user_data;
 
-    DBG("");
+    ofono_warn("");
     plugin->start_timeout_id = 0;
 
     /*
@@ -2246,7 +2246,7 @@ binder_plugin_manager_start_done(
 {
     BinderPlugin* plugin = user_data;
 
-    DBG("");
+    ofono_warn("");
     if (plugin->start_timeout_id) {
         /* Startup was cancelled */
         plugin->start_timeout_id = 0;
@@ -2275,7 +2275,7 @@ binder_plugin_slot_start_timeout(
     BinderSlot* slot = user_data;
     BinderPlugin* plugin = slot->plugin;
 
-    DBG("%s", slot->name);
+    ofono_warn("%s", slot->name);
     slot->start_timeout_id = 0;
 
     /*
@@ -2323,7 +2323,7 @@ binder_plugin_slot_driver_init(
     GHashTable* slot_numbers;
     guint i;
 
-    DBG("");
+    ofono_warn("");
     for (i = 0; i < G_N_ELEMENTS(binder_plugin_modules); i++) {
         binder_plugin_modules[i].init();
     }
@@ -2374,7 +2374,7 @@ binder_plugin_slot_driver_init(
                 slot->path = g_strdup_printf("/%s_%u",
                     BINDER_DEFAULT_SLOT_PATH_PREFIX, i++);
             } while (g_hash_table_contains(slot_paths, slot->path));
-            DBG("assigned %s => %s", slot->name, slot->path);
+            ofono_warn("assigned %s => %s", slot->name, slot->path);
             g_hash_table_insert(slot_paths,
                 (gpointer) slot->path,
                 (gpointer) slot->path);
@@ -2387,7 +2387,7 @@ binder_plugin_slot_driver_init(
                 GUINT_TO_POINTER(slot->config.slot))) {
                 slot->config.slot++;
             }
-            DBG("assigned %s => %u", slot->name, slot->config.slot);
+            ofono_warn("assigned %s => %u", slot->name, slot->config.slot);
             g_hash_table_insert(slot_numbers,
                 GUINT_TO_POINTER(slot->config.slot),
                 GUINT_TO_POINTER(slot->config.slot));
@@ -2433,7 +2433,7 @@ binder_plugin_slot_driver_start(
     BinderPluginSettings* ps = &plugin->settings;
     guint start_timeout, shortest_timeout = 0;
 
-    DBG("");
+    ofono_warn("");
 
     /* Switch the user to the one expected by the radio subsystem */
     binder_plugin_switch_identity(&ps->identity);
@@ -2450,7 +2450,7 @@ binder_plugin_slot_driver_start(
         start_timeout, binder_plugin_manager_start_timeout,
         plugin, binder_plugin_manager_start_done);
 
-    DBG("start timeout %u ms id %u", start_timeout, plugin->start_timeout_id);
+    ofono_warn("start timeout %u ms id %u", start_timeout, plugin->start_timeout_id);
 
     /*
      * Keep and eye on IRadioConfig service. Note that we're watching
@@ -2482,7 +2482,7 @@ binder_plugin_slot_driver_cancel(
     BinderPlugin* plugin,
     guint id)
 {
-    DBG("%u", id);
+    ofono_warn("%u", id);
     GASSERT(plugin->start_timeout_id == id);
     plugin->start_timeout_id = 0;
     g_source_remove(id);
@@ -2582,7 +2582,7 @@ binder_plugin_init(void)
         .notify = binder_plugin_mce_log_notify
     };
 
-    DBG("");
+    ofono_warn("");
 
     /*
      * Log categories (accessible via D-Bus) are generated from
@@ -2600,7 +2600,7 @@ static
 void
 binder_plugin_exit(void)
 {
-    DBG("");
+    ofono_warn("");
     binder_plugin_foreach_slot(ofono_slot_driver_get_data(binder_driver_reg),
         binder_plugin_slot_free);
     ofono_slot_driver_unregister(binder_driver_reg);

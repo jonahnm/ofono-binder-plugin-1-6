@@ -100,7 +100,7 @@ struct binder_modem_priv {
 
 #define RADIO_POWER_TAG(md) (md)
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static BinderModemPriv* binder_modem_cast(BinderModem* modem)
     { return G_CAST(modem, BinderModemPriv, pub); }
@@ -454,7 +454,7 @@ int
 binder_modem_probe(
     struct ofono_modem* ofono)
 {
-    DBG("%s", ofono_modem_get_path(ofono));
+    ofono_warn("%s", ofono_modem_get_path(ofono));
     return 0;
 }
 

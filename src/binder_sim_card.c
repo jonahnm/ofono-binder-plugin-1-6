@@ -191,7 +191,7 @@ binder_sim_card_tx_start(
 
     if (block == RADIO_BLOCK_NONE) {
         block = radio_request_group_block(self->g);
-        DBG("status tx for slot %u %s", self->card.slot,
+        ofono_warn("status tx for slot %u %s", self->card.slot,
             (block == RADIO_BLOCK_ACQUIRED) ? "started" : "starting");
     }
 }
@@ -214,11 +214,11 @@ binder_sim_card_tx_check(
             if (!self->status_req && !self->sub_req &&
                 status->gsm_umts_index >= 0 &&
                 status->gsm_umts_index < status->num_apps) {
-                DBG("status tx for slot %u finished", card->slot);
+                ofono_warn("status tx for slot %u finished", card->slot);
                 radio_request_group_unblock(self->g);
             }
         } else {
-            DBG("status tx for slot %u cancelled", card->slot);
+            ofono_warn("status tx for slot %u cancelled", card->slot);
             radio_request_group_unblock(self->g);
         }
     }
@@ -260,7 +260,7 @@ binder_sim_card_subscribe_cb(
 
     radio_request_unref(self->sub_req);
     self->sub_req = NULL;
-    DBG("UICC subscription OK for slot %u", self->card.slot);
+    ofono_warn("UICC subscription OK for slot %u", self->card.slot);
     binder_sim_card_subscription_done(self);
 }
 
@@ -278,7 +278,7 @@ binder_sim_card_subscribe(
     RadioSelectUiccSub* sub = gbinder_writer_new0(&args, RadioSelectUiccSub);
 
     /* setUiccSubscription(serial, SelectUiccSub uiccSub) */
-    DBG("%u,%d", card->slot, app_index);
+    ofono_warn("%u,%d", card->slot, app_index);
     sub->slot = card->slot;
     sub->appIndex = app_index;
     sub->actStatus = RADIO_UICC_SUB_ACTIVATE;
@@ -317,7 +317,7 @@ binder_sim_card_select_app(
         }
     }
 
-    DBG("%d", selected_app);
+    ofono_warn("%d", selected_app);
     return selected_app;
 }
 
@@ -366,7 +366,7 @@ binder_sim_card_sub_start_timeout(
 {
     BinderSimCardObject* self = THIS(user_data);
 
-    DBG("%u", self->card.slot);
+    ofono_warn("%u", self->card.slot);
     GASSERT(self->sub_start_timer);
     self->sub_start_timer = 0;
     binder_sim_card_update_app(self);
@@ -396,7 +396,7 @@ binder_sim_card_update_status(
             if (self->sub_start_timer) {
                 g_source_remove(self->sub_start_timer);
             }
-            DBG("started subscription timeout for slot %u", card->slot);
+            ofono_warn("started subscription timeout for slot %u", card->slot);
             self->sub_start_timer = g_timeout_add(UICC_SUBSCRIPTION_START_MS,
                 binder_sim_card_sub_start_timeout, self);
         }
@@ -406,12 +406,12 @@ binder_sim_card_update_status(
             [SIGNAL_STATUS_RECEIVED], 0);
 
         if (diff & BINDER_SIMCARD_STATUS_CHANGED) {
-            DBG("status changed");
+            ofono_warn("status changed");
             g_signal_emit(self, binder_sim_card_signals
                 [SIGNAL_STATUS_CHANGED], 0);
         }
         if (diff & BINDER_SIMCARD_STATE_CHANGED) {
-            DBG("state changed");
+            ofono_warn("state changed");
             g_signal_emit(self, binder_sim_card_signals
                 [SIGNAL_STATE_CHANGED], 0);
         }
@@ -433,7 +433,7 @@ binder_sim_card_status_new(
     BinderSimCardStatus* status = g_malloc0(sizeof(BinderSimCardStatus) +
         num_apps * sizeof(BinderSimCardApp));
 
-    DBG("card_state=%d, universal_pin_state=%d, gsm_umts_index=%d, "
+    ofono_warn("card_state=%d, universal_pin_state=%d, gsm_umts_index=%d, "
         "ims_index=%d, num_apps=%d", radio_status->cardState,
         radio_status->universalPinState,
         radio_status->gsmUmtsSubscriptionAppIndex,
@@ -462,7 +462,7 @@ binder_sim_card_status_new(
             app->aid = g_strdup(radio_app->aid.data.str);
             app->label = g_strdup(radio_app->label.data.str);
 
-            DBG("app[%d]: type=%d, state=%d, perso_substate=%d, aid_ptr=%s, "
+            ofono_warn("app[%d]: type=%d, state=%d, perso_substate=%d, aid_ptr=%s, "
                 "label=%s, pin1_replaced=%d, pin1=%d, pin2=%d", i,
                 app->app_type, app->app_state, app->perso_substate,
                 app->aid, app->label, app->pin_replaced, app->pin1_state,
@@ -578,7 +578,7 @@ binder_sim_card_update_sim_io_active(
 
     if (card->sim_io_active != active) {
         card->sim_io_active = active;
-        DBG("SIM I/O for slot %u is %sactive", card->slot, active ? "" : "in");
+        ofono_warn("SIM I/O for slot %u is %sactive", card->slot, active ? "" : "in");
         g_signal_emit(self, binder_sim_card_signals
             [SIGNAL_SIM_IO_ACTIVE_CHANGED], 0);
     }
@@ -624,7 +624,7 @@ binder_sim_card_new(
     BinderSimCardObject* self = g_object_new(THIS_TYPE, NULL);
     BinderSimCard *card = &self->card;
 
-    DBG("%u", slot);
+    ofono_warn("%u", slot);
     card->slot = slot;
     self->g = radio_request_group_new(client); /* Keeps ref to client */
 

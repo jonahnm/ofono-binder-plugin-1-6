@@ -76,7 +76,7 @@ G_DEFINE_TYPE(BinderCellInfo, binder_cell_info, G_TYPE_OBJECT)
 #define THIS(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), THIS_TYPE, BinderCellInfo))
 #define PARENT_CLASS binder_cell_info_parent_class
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 /*
  * binder_cell_info_list_equal() assumes that zero-initialized
@@ -245,7 +245,7 @@ binder_cell_info_new_cell_gsm(
     gsm->signalStrength = ss->signalStrength;
     gsm->bitErrorRate = ss->bitErrorRate;
     gsm->timingAdvance = ss->timingAdvance;
-    DBG("[gsm] reg=%d%s%s%s%s%s%s%s%s%s", registered,
+    ofono_warn("[gsm] reg=%d%s%s%s%s%s%s%s%s%s", registered,
         binder_cell_info_int_format(gsm->mcc, ",mcc=%d"),
         binder_cell_info_int_format(gsm->mnc, ",mnc=%d"),
         binder_cell_info_int_format(gsm->lac, ",lac=%d"),
@@ -281,7 +281,7 @@ binder_cell_info_new_cell_wcdma(
     wcdma->uarfcn = id->uarfcn;
     wcdma->signalStrength = ss->signalStrength;
     wcdma->bitErrorRate = ss->bitErrorRate;
-    DBG("[wcdma] reg=%d%s%s%s%s%s%s%s", registered,
+    ofono_warn("[wcdma] reg=%d%s%s%s%s%s%s%s", registered,
         binder_cell_info_int_format(wcdma->mcc, ",mcc=%d"),
         binder_cell_info_int_format(wcdma->mnc, ",mnc=%d"),
         binder_cell_info_int_format(wcdma->lac, ",lac=%d"),
@@ -318,7 +318,7 @@ binder_cell_info_new_cell_lte(
     lte->rssnr = ss->rssnr;
     lte->cqi = ss->cqi;
     lte->timingAdvance = ss->timingAdvance;
-    DBG("[lte] reg=%d%s%s%s%s%s%s%s%s%s%s%s", registered,
+    ofono_warn("[lte] reg=%d%s%s%s%s%s%s%s%s%s%s%s", registered,
         binder_cell_info_int_format(lte->mcc, ",mcc=%d"),
         binder_cell_info_int_format(lte->mnc, ",mnc=%d"),
         binder_cell_info_int_format(lte->ci, ",ci=%d"),
@@ -398,7 +398,7 @@ binder_cell_info_new_cell_nr(
     nr->csiRsrp = ss->csiRsrp;
     nr->csiRsrq = ss->csiRsrq;
     nr->csiSinr = ss->csiSinr;
-    DBG("[nr] reg=%d%s%s%s%s%s%s%s%s%s%s%s", registered,
+    ofono_warn("[nr] reg=%d%s%s%s%s%s%s%s%s%s%s%s", registered,
         binder_cell_info_int_format(nr->mcc, ",mcc=%d"),
         binder_cell_info_int_format(nr->mnc, ",mnc=%d"),
         binder_cell_info_int64_format(nr->nci, ",nci=%" G_GINT64_FORMAT),
@@ -498,7 +498,7 @@ binder_cell_info_array_new_1_0(
         case RADIO_CELL_INFO_TD_SCDMA:
             break;
         }
-        DBG("unsupported cell type %d", cell->cellInfoType);
+        ofono_warn("unsupported cell type %d", cell->cellInfoType);
     }
     return l;
 }
@@ -549,7 +549,7 @@ binder_cell_info_array_new_1_2(
         case RADIO_CELL_INFO_TD_SCDMA:
             break;
         }
-        DBG("unsupported cell type %d", cell->cellInfoType);
+        ofono_warn("unsupported cell type %d", cell->cellInfoType);
     }
     return l;
 }
@@ -592,7 +592,7 @@ binder_cell_info_array_new_1_4(
         case RADIO_CELL_INFO_1_4_CDMA:
             break;
         }
-        DBG("unsupported cell type %d", cell->cellInfoType);
+        ofono_warn("unsupported cell type %d", cell->cellInfoType);
     }
     return l;
 }
@@ -635,7 +635,7 @@ binder_cell_info_array_new_1_5(
         case RADIO_CELL_INFO_1_5_CDMA:
             break;
         }
-        DBG("unsupported cell type %d", cell->cellInfoType);
+        ofono_warn("unsupported cell type %d", cell->cellInfoType);
     }
     return l;
 }
@@ -677,7 +677,7 @@ binder_cell_info_array_new_1_6(
             case RADIO_CELL_INFO_1_6_CDMA:
                 break;
         }
-        DBG("unsupported cell type %d", cell->cellInfoType);
+        ofono_warn("unsupported cell type %d", cell->cellInfoType);
     }
     return l;
 }

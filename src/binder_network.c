@@ -146,7 +146,7 @@ G_DEFINE_TYPE(BinderNetworkObject, binder_network_object, BINDER_TYPE_BASE)
 #define THIS_TYPE binder_network_object_get_type()
 #define THIS(obj) G_TYPE_CHECK_INSTANCE_CAST(obj,THIS_TYPE,BinderNetworkObject)
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 /* Some assumptions: */
 BINDER_BASE_ASSERT_COUNT(BINDER_NETWORK_PROPERTY_COUNT);

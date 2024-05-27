@@ -151,7 +151,7 @@ static const BinderNetRegRadioType binder_netreg_radio_types_1_5[] = {
 G_STATIC_ASSERT(N_RADIO_TYPES == (OFONO_RADIO_ACCESS_MODE_COUNT - 1));
 G_STATIC_ASSERT(N_RADIO_TYPES_1_5 == OFONO_RADIO_ACCESS_MODE_COUNT);
 
-#define DBG_(self,fmt,args...) DBG("%s" fmt, (self)->log_prefix, ##args)
+#define DBG_(self,fmt,args...) ofono_warn("%s" fmt, (self)->log_prefix, ##args)
 
 static inline BinderNetReg* binder_netreg_get_data(struct ofono_netreg *ofono)
     { return ofono ? ofono_netreg_get_data(ofono) : NULL; }
@@ -335,7 +335,7 @@ binder_netreg_strange(
              * operators could be reported with the same name
              * which equals SPN).
              */
-            DBG("%s %s%s (sim spn?)", op->name, op->mcc, op->mnc);
+            ofono_warn("%s %s%s (sim spn?)", op->name, op->mcc, op->mnc);
             return TRUE;
         }
     }
@@ -344,7 +344,7 @@ binder_netreg_strange(
     if (!strncmp(op->name, op->mcc, mcclen) &&
         !strcmp(op->name + mcclen, op->mnc)) {
         /* Some MediaTek modems only report numeric operator name */
-        DBG("%s %s%s (numeric?)", op->name, op->mcc, op->mnc);
+        ofono_warn("%s %s%s (numeric?)", op->name, op->mcc, op->mnc);
         return TRUE;
     }
 
@@ -370,7 +370,7 @@ binder_netreg_process_operators(
                 NULL, &prov, &np)) {
                 /* Use the first entry */
                 if (np > 0 && prov->provider_name && prov->provider_name[0]) {
-                    DBG("%s %s%s -> %s", op->name, op->mcc, op->mnc,
+                    ofono_warn("%s %s%s -> %s", op->name, op->mcc, op->mnc,
                         prov->provider_name);
                     g_strlcpy(op->name, prov->provider_name, sizeof(op->name));
                 }
@@ -502,7 +502,7 @@ binder_netreg_oplist_fill(
 
         dest->tech = default_tech;
         binder_parse_mcc_mnc(src->operatorNumeric.data.str, dest);
-        DBG("[operator=%s, %s, %s, %s, %s]",
+        ofono_warn("[operator=%s, %s, %s, %s, %s]",
             dest->name, dest->mcc, dest->mnc,
             binder_ofono_access_technology_string(dest->tech),
             binder_radio_op_status_string(src->status));
@@ -905,7 +905,7 @@ binder_netreg_scan_op_convert_gsm(
     binder_netreg_scan_op_copy_name(&src->operatorNames, dest);
     g_strlcpy(dest->mcc, gsm->mcc.data.str, sizeof(dest->mcc));
     g_strlcpy(dest->mnc, gsm->mnc.data.str, sizeof(dest->mnc));
-    DBG("[registered=%d, operator=%s, %s, %s, %s, %s]",
+    ofono_warn("[registered=%d, operator=%s, %s, %s, %s, %s]",
         registered, dest->name, dest->mcc, dest->mnc,
         binder_ofono_access_technology_string(dest->tech),
         binder_radio_op_status_string(dest->status));
@@ -928,7 +928,7 @@ binder_netreg_scan_op_convert_wcdma(
     binder_netreg_scan_op_copy_name(&src->operatorNames, dest);
     g_strlcpy(dest->mcc, wcdma->mcc.data.str, sizeof(dest->mcc));
     g_strlcpy(dest->mnc, wcdma->mnc.data.str, sizeof(dest->mnc));
-    DBG("[registered=%d, operator=%s, %s, %s, %s, %s]",
+    ofono_warn("[registered=%d, operator=%s, %s, %s, %s, %s]",
         registered, dest->name, dest->mcc, dest->mnc,
         binder_ofono_access_technology_string(dest->tech),
         binder_radio_op_status_string(dest->status));
@@ -951,7 +951,7 @@ binder_netreg_scan_op_convert_lte(
     binder_netreg_scan_op_copy_name(&src->operatorNames, dest);
     g_strlcpy(dest->mcc, lte->mcc.data.str, sizeof(dest->mcc));
     g_strlcpy(dest->mnc, lte->mnc.data.str, sizeof(dest->mnc));
-    DBG("[registered=%d, operator=%s, %s, %s, %s, %s]",
+    ofono_warn("[registered=%d, operator=%s, %s, %s, %s, %s]",
         registered, dest->name, dest->mcc, dest->mnc,
         binder_ofono_access_technology_string(dest->tech),
         binder_radio_op_status_string(dest->status));
@@ -974,7 +974,7 @@ binder_netreg_scan_op_convert_nr(
     binder_netreg_scan_op_copy_name(&src->operatorNames, dest);
     g_strlcpy(dest->mcc, nr->mcc.data.str, sizeof(dest->mcc));
     g_strlcpy(dest->mnc, nr->mnc.data.str, sizeof(dest->mnc));
-    DBG("[registered=%d, operator=%s, %s, %s, %s, %s]",
+    ofono_warn("[registered=%d, operator=%s, %s, %s, %s, %s]",
         registered, dest->name, dest->mcc, dest->mnc,
         binder_ofono_access_technology_string(dest->tech),
         binder_radio_op_status_string(dest->status));
