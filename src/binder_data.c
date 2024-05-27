@@ -2176,7 +2176,7 @@ binder_data_poll_call_state(
 
     if (G_LIKELY(self) && !self->query_req) {
         RadioRequest* ioreq = radio_request_new2(self->g,
-            RADIO_REQ_GET_DATA_CALL_LIST, NULL,
+            RADIO_REQ_GET_DATA_CALL_LIST_1_6, NULL,
             binder_data_query_data_calls_cb, NULL, self);
 
         radio_request_set_retry(ioreq, BINDER_RETRY_SECS*1000, -1);
