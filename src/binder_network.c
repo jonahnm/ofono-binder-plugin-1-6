@@ -71,6 +71,7 @@ enum binder_network_ind_events {
     IND_NETWORK_STATE,
     IND_MODEM_RESET,
     IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_4,
+    IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_6,
     IND_COUNT
 };
 
@@ -2158,7 +2159,12 @@ binder_network_current_physical_channel_configs_cb(
                 nr_connected = TRUE;
             }
         }
-    } else {
+    } else if (code == RADIO_IND_CURRENT_PHYSICAL_CHANNEL_CONFIGS_1_6) {
+        gsize count;
+        guint i;
+
+    }
+    else {
         ofono_warn("Unexpected current physical channel configs code %d", code);
     }
     self->nr_connected = nr_connected;
