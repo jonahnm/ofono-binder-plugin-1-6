@@ -45,6 +45,7 @@ enum binder_netreg_radio_ind {
     IND_SIGNAL_STRENGTH,
     IND_SIGNAL_STRENGTH_1_2,
     IND_SIGNAL_STRENGTH_1_4,
+    IND_SIGNAL_STRENGTH_1_6,
     IND_NETWORK_SCAN_RESULT_1_2,
     IND_NETWORK_SCAN_RESULT_1_4,
     IND_NETWORK_SCAN_RESULT_1_5,
@@ -1120,12 +1121,12 @@ binder_netreg_scan_result_notify(
                     const RadioCellInfo_1_6* cell = cells + i;
 
                     switch ((RADIO_CELL_INFO_TYPE_1_6)cell->cellInfoType) {
-                        case RADIO_CELL_INFO_1_5_GSM:
+                        case RADIO_CELL_INFO_1_6_GSM:
                             binder_netreg_scan_op_convert_gsm(cell->registered,
                                                               &cell->info.gsm.cellIdentityGsm.base,
                                                               binder_netreg_scan_op_append(scan));
                             break;
-                        case RADIO_CELL_INFO_1_5_WCDMA:
+                        case RADIO_CELL_INFO_1_6_WCDMA:
                             binder_netreg_scan_op_convert_wcdma(cell->registered,
                                                                 &cell->info.wcdma.cellIdentityWcdma.base,
                                                                 binder_netreg_scan_op_append(scan));
@@ -1140,8 +1141,8 @@ binder_netreg_scan_result_notify(
                                                              &cell->info.nr.cellIdentityNr.base,
                                                              binder_netreg_scan_op_append(scan));
                             break;
-                        case RADIO_CELL_INFO_1_5_CDMA:
-                        case RADIO_CELL_INFO_1_5_TD_SCDMA:
+                        case RADIO_CELL_INFO_1_6_CDMA:
+                        case RADIO_CELL_INFO_1_6_TD_SCDMA:
                             break;
                     }
                 }
@@ -1480,7 +1481,67 @@ binder_netreg_get_signal_strength_dbm(
         return -140;
     }
 }
+static
+int
+binder_netreg_get_signal_strength_dbm_1_6(
+        const RadioSignalStrengthGsm* gsm,
+        const RadioSignalStrengthLte_1_6* lte,
+        const RadioSignalStrengthWcdma_1_2* wcdma,
+        const RadioSignalStrengthTdScdma_1_2* tdscdma,
+        const RadioSignalStrengthNr_1_6* nr)
+{
+    int rssi = -1, rscp = -1, rsrp = -1;
 
+    if (gsm->signalStrength <= RSSI_MAX) {
+        rssi = gsm->signalStrength;
+    }
+
+    if (lte->base.signalStrength <= RSSI_MAX &&
+        (int)lte->base.signalStrength > rssi) {
+        rssi = lte->base.signalStrength;
+    }
+
+    if (lte->base.rsrp >= RSRP_MIN && lte->base.rsrp <= RSRP_MAX) {
+        rsrp = lte->base.rsrp;
+    }
+
+    if (wcdma) {
+        if (wcdma->base.signalStrength <= RSSI_MAX &&
+            (int)wcdma->base.signalStrength > rssi) {
+            rssi = wcdma->base.signalStrength;
+        }
+        if (wcdma->rscp <= RSCP_MAX) {
+            rscp = wcdma->rscp;
+        }
+    }
+
+    if (tdscdma) {
+        if (tdscdma->signalStrength <= RSSI_MAX &&
+            (int)tdscdma->signalStrength > rssi) {
+            rssi = tdscdma->signalStrength;
+        }
+        if (tdscdma->rscp <= RSCP_MAX &&
+            (int)tdscdma->rscp > rscp) {
+            rscp = tdscdma->rscp;
+        }
+    }
+
+    if (nr) {
+        if (nr->base.ssRsrp >= RSRP_MIN && nr->base.ssRsrp <= RSRP_MAX) {
+            rsrp = nr->base.ssRsrp;
+        }
+    }
+
+    if (rssi >= RSCP_MIN) {
+        return binder_netreg_dbm_from_rssi(rssi);
+    } else if (rscp >= RSCP_MIN) {
+        return binder_netreg_dbm_from_rscp(rssi);
+    } else if (rsrp >= RSRP_MIN) {
+        return binder_netreg_dbm_from_rsrp(rssi);
+    } else {
+        return -140;
+    }
+}
 static
 int
 binder_netreg_percent_from_dbm(
@@ -1531,6 +1592,13 @@ binder_netreg_strength_notify(
         if (ss) {
             dbm = binder_netreg_get_signal_strength_dbm
                 (&ss->gsm, &ss->lte, &ss->wcdma, &ss->tdscdma, &ss->nr);
+        }
+    } else if(code == RADIO_IND_CURRENT_SIGNAL_STRENGTH_1_6) {
+        const RadioSignalStrength_1_6 *ss = gbinder_reader_read_hidl_struct(&reader, RadioSignalStrength_1_6);
+
+        if(ss) {
+            dbm = binder_netreg_get_signal_strength_dbm_1_6
+                    (&ss->gsm, &ss->lte, &ss->wcdma, &ss->tdscdma, &ss->nr);
         }
     }
 
@@ -1592,6 +1660,13 @@ static void binder_netreg_strength_cb(
                     dbm = binder_netreg_get_signal_strength_dbm
                         (&ss->gsm, &ss->lte, &ss->wcdma, &ss->tdscdma, &ss->nr);
                 }
+            }else if (resp == RADIO_RESP_GET_SIGNAL_STRENGTH_1_6) {
+                const RadioSignalStrength_1_6 *ss = gbinder_reader_read_hidl_struct(&reader,RadioSignalStrength_1_6);
+
+                if(ss) {
+                    dbm = binder_netreg_get_signal_strength_dbm_1_6
+                            (&ss->gw, &ss->lte, &ss->wcdma, NULL, NULL);
+                }
             } else {
                 ofono_error("Unexpected getSignalStrength response %d", resp);
             }
@@ -1623,8 +1698,8 @@ binder_netreg_strength(
 {
     BinderNetReg* self = binder_netreg_get_data(netreg);
     RadioRequest* req = radio_request_new(self->client,
-        (radio_client_interface(self->client) >= RADIO_INTERFACE_1_4) ?
-        RADIO_REQ_GET_SIGNAL_STRENGTH_1_4 : RADIO_REQ_GET_SIGNAL_STRENGTH,
+        (radio_client_interface(self->client) >= RADIO_INTERFACE_1_4 && radio_client_interface(self->client) < RADIO_INTERFACE_1_6) ?
+        RADIO_REQ_GET_SIGNAL_STRENGTH_1_4 : ((/*radio_client_interface(self->client)*/6 == RADIO_INTERFACE_1_6) ? RADIO_REQ_GET_SIGNAL_STRENGTH_1_6 : RADIO_REQ_GET_SIGNAL_STRENGTH),
         NULL, binder_netreg_strength_cb, binder_netreg_cbd_destroy,
         binder_netreg_cbd_new(self, BINDER_CB(cb), data));
 
@@ -1763,7 +1838,9 @@ binder_netreg_register(
         radio_client_add_indication_handler(self->client,
             RADIO_IND_CURRENT_SIGNAL_STRENGTH_1_4,
             binder_netreg_strength_notify, self);
-
+    self->ind_id[IND_SIGNAL_STRENGTH_1_6] =
+            radio_client_add_indication_handler(self->client,RADIO_IND_CURRENT_SIGNAL_STRENGTH_1_6,
+                                                binder_netreg_strength_notify,self);
     /* Incremental scan results */
     self->ind_id[IND_NETWORK_SCAN_RESULT_1_2] =
         radio_client_add_indication_handler(self->client,
