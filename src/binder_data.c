@@ -1417,7 +1417,7 @@ binder_data_call_setup_submit(
     BinderDataObject* data = dr->data;
     BinderNetwork* network = data->network;
     RadioRequestGroup* g = data->g;
-    const RADIO_INTERFACE iface = 6;//radio_client_interface(g->client);
+    const RADIO_INTERFACE iface = radio_client_interface(g->client);
     RadioRequest* req;
     GBinderWriter writer;
     const char* nothing = NULL;
@@ -1464,8 +1464,8 @@ binder_data_call_setup_submit(
         gbinder_writer_append_hidl_string_vec(&writer, &nothing, -1);
         gbinder_writer_append_hidl_string_vec(&writer, &nothing, -1);
         gbinder_writer_append_int32(&writer,0); /* pduSessionId */
-        gbinder_writer_append_int32(&writer,0); /* sliceInfo */
-        gbinder_writer_append_int32(&writer,0); /* trafficDescriptor */
+        gbinder_writer_append_int64(&writer,0); /* sliceInfo */
+        gbinder_writer_append_int64(&writer,0); /* trafficDescriptor */
         gbinder_writer_append_bool(&writer,TRUE); /* matchAllRuleAllowed */
     }
     else if (iface == RADIO_INTERFACE_1_5) {
