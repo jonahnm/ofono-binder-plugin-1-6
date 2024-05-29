@@ -2175,10 +2175,14 @@ binder_data_poll_call_state(
     BinderDataObject* self = binder_data_cast(data);
 
     if (G_LIKELY(self) && !self->query_req) {
-        RadioRequest* ioreq = radio_request_new2(self->g,
-            RADIO_REQ_GET_DATA_CALL_LIST, NULL,
-            binder_data_query_data_calls_cb, NULL, self);
-
+        RadioRequest *ioreq;
+        if(radio_client_interface(self->g->client) == RADIO_INTERFACE_1_6) {
+            ioreq = radio_request_new2(self->g,RADIO_REQ_GET_DATA_CALL_LIST_1_6,NULL, binder_data_query_data_calls_cb,NULL,self);
+        } else {
+            ioreq = radio_request_new2(self->g,
+                                                     RADIO_REQ_GET_DATA_CALL_LIST, NULL,
+                                                     binder_data_query_data_calls_cb, NULL, self);
+        }
         radio_request_set_retry(ioreq, BINDER_RETRY_SECS*1000, -1);
         radio_request_set_retry_func(ioreq, binder_data_poll_call_state_retry);
         self->query_req = ioreq;
