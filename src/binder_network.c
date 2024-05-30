@@ -941,7 +941,11 @@ binder_network_poll_registration_state(
     self->voice_poll_req = binder_network_poll_and_retry(self,
         self->voice_poll_req, RADIO_REQ_GET_VOICE_REGISTRATION_STATE,
         binder_network_poll_voice_state_cb);
-    if (iface >= RADIO_INTERFACE_1_5) {
+    if(iface == RADIO_INTERFACE_1_6) {
+        self->voice_poll_req = binder_network_poll_and_retry(self, self->voice_poll_req,RADIO_REQ_GET_VOICE_REGISTRATION_STATE_1_6,binder_network_poll_voice_state_cb);
+        self->data_poll_req = binder_network_poll_and_retry(self,self->data_poll_req,RADIO_REQ_GET_DATA_REGISTRATION_STATE_1_6,binder_network_poll_data_state_cb);
+    }
+    else if (iface == RADIO_INTERFACE_1_5) {
         self->data_poll_req = binder_network_poll_and_retry(self,
             self->data_poll_req, RADIO_REQ_GET_DATA_REGISTRATION_STATE_1_5,
             binder_network_poll_data_state_cb);
@@ -1880,7 +1884,7 @@ binder_network_initial_rat_query(
     BinderNetworkObject* self)
 {
     RadioClient* client = self->g->client;
-    const RADIO_INTERFACE iface = RADIO_INTERFACE_1_6;//radio_client_interface(client);
+    const RADIO_INTERFACE iface = radio_client_interface(client);
 
     RadioRequest* req;
     ofono_warn("Interface 1.6: %i",RADIO_INTERFACE_1_6);
@@ -1968,7 +1972,7 @@ binder_network_query_pref_mode(
     BinderNetworkObject* self)
 {
     RadioClient* client = self->g->client;
-    const RADIO_INTERFACE iface = 6;//radio_client_interface(client);
+    const RADIO_INTERFACE iface = radio_client_interface(client);
     RadioRequest* req;
     if(iface == RADIO_INTERFACE_1_6) {
         ofono_warn("1.6");
