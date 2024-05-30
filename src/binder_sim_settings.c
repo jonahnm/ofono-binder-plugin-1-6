@@ -120,18 +120,7 @@ binder_sim_settings_unref(
 
     if (G_LIKELY(self)) {
         g_object_unref(self);
-    }
-}
-
-void
-binder_sim_settings_set_pref(
-    BinderSimSettings* settings,
-    enum ofono_radio_access_mode pref)
-{
-    BinderSimSettingsObject* self = binder_sim_settings_cast(settings);
-
-    if (G_LIKELY(self) && settings->pref != pref) {
-        settings->pref = pref;
+Gef;
         binder_base_emit_property_change(&self->base,
             BINDER_SIM_SETTINGS_PROPERTY_PREF);
     }
