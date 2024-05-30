@@ -126,7 +126,7 @@ typedef struct binder_network_object {
     gulong ind_id[IND_COUNT];
     gulong settings_event_id;
     gulong caps_raf_event_id;
-    gulong caps_mgr_event_id[RADIO_CAPS_MGR_EVENT_COUNT];
+    gulong caps_mgr_event_id[RADIO_CAPS_MGR_EVENT_COUNT];BINDER_NETWORK_PROPERTY_ALLOWED
     gulong radio_event_id[RADIO_EVENT_COUNT];
     gulong simcard_event_id[SIM_EVENT_COUNT];
     gulong watch_ids[WATCH_EVENT_COUNT];
@@ -1005,7 +1005,7 @@ binder_network_actual_pref_modes(
     BinderNetwork* net = &self->pub;
     BinderSimSettings* settings = net->settings;
     BinderRadioCaps* caps = self->caps;
-    enum ofono_radio_access_mode supported = caps ?
+    const enum ofono_radio_access_mode supported = caps ?
         binder_access_modes_from_raf(caps->raf) :
         OFONO_RADIO_ACCESS_MODE_ALL;
 
@@ -1019,10 +1019,7 @@ binder_network_actual_pref_modes(
     const enum ofono_radio_access_mode really_allowed =
         (self->radio->state == RADIO_STATE_ON) ?  net->allowed_modes:
         OFONO_RADIO_ACCESS_MODE_GSM;
-    if(radio_client_interface(self->g->client) == RADIO_INTERFACE_1_6) {
-        ofono_warn("Detected 1.6, allowing all radio modes.");
-        supported = OFONO_RADIO_ACCESS_MODE_ALL;
-    }
+
     return settings->techs & settings->pref & supported & really_allowed;
 }
 
