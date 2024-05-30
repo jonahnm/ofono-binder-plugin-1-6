@@ -1005,7 +1005,7 @@ binder_network_actual_pref_modes(
     BinderNetwork* net = &self->pub;
     BinderSimSettings* settings = net->settings;
     BinderRadioCaps* caps = self->caps;
-    const enum ofono_radio_access_mode supported = caps ?
+    enum ofono_radio_access_mode supported = caps ?
         binder_access_modes_from_raf(caps->raf) :
         OFONO_RADIO_ACCESS_MODE_ALL;
 
