@@ -120,7 +120,6 @@ binder_sim_settings_unref(
 
     if (G_LIKELY(self)) {
         g_object_unref(self);
-Gef;
         binder_base_emit_property_change(&self->base,
             BINDER_SIM_SETTINGS_PROPERTY_PREF);
     }
