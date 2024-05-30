@@ -126,7 +126,7 @@ typedef struct binder_network_object {
     gulong ind_id[IND_COUNT];
     gulong settings_event_id;
     gulong caps_raf_event_id;
-    gulong caps_mgr_event_id[RADIO_CAPS_MGR_EVENT_COUNT];BINDER_NETWORK_PROPERTY_ALLOWED
+    gulong caps_mgr_event_id[RADIO_CAPS_MGR_EVENT_COUNT];
     gulong radio_event_id[RADIO_EVENT_COUNT];
     gulong simcard_event_id[SIM_EVENT_COUNT];
     gulong watch_ids[WATCH_EVENT_COUNT];
